@@ -1,5 +1,4 @@
-﻿using BookRepository;
-using ClassLibrary;
+﻿using ClassLibrary;
 using System.Data.Common;
 using System.Security.Cryptography.X509Certificates;
 
@@ -8,7 +7,6 @@ namespace Application
     public class BookMethods
     {
         private static List<Book> _book = new List<Book>();
-        private readonly IBookRepository _bookRepository;
 
 
         public static Book AddNewBook(int id, string author, string bookName)
