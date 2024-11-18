@@ -1,10 +1,12 @@
-﻿using ClassLibrary;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace BookRepository
+namespace Infrastructure
 {
     public interface IBookRepository
     {
-        Book GetById(int id);
-        bool Update(Book book);
     }
 }
