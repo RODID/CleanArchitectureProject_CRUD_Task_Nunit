@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Presentation", "Presentatio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test_CRUD", "NUnit_Test\Test_CRUD.csproj", "{1CD6244E-3AFF-4C97-ADA1-710448E64B97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI", "WebApplication1\WebAPI.csproj", "{578C72E9-F658-42E5-A6AE-C6A2DEC2EA12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "WebApplication1\WebAPI.csproj", "{578C72E9-F658-42E5-A6AE-C6A2DEC2EA12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
