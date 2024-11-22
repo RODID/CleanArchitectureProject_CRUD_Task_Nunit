@@ -15,6 +15,6 @@ namespace Infrastructure
         void Add(Book book);
         bool Update(Book book);
         bool Delete(int id);
-        
+
     }
 }

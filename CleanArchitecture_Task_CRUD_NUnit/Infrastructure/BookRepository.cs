@@ -1,22 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Infrastructure;
 using ClassLibrary;
+using Infrastructure.Database;
 
 namespace Infrastructure
 {
     public class BookRepository : IBookRepository
     {
-        private readonly List<Book> _books = new List<Book>();
+        private readonly List<Book> _books;
+
+        public BookRepository()
+        {
+            _books = FakeDatabase.AllBooksFromDb;
+        }
 
         public Book GetById(int id)
         {
             return _books.SingleOrDefault(b => b.Id == id);
         }
-        public List<Book> GetAll() 
+
+        public List<Book> GetAll()
         {
             return new List<Book>(_books);
         }
@@ -27,6 +30,7 @@ namespace Infrastructure
             {
                 throw new Exception("A book with this id already exists.");
             }
+            _books.Add(book);
         }
 
         public bool Update(Book book)
@@ -49,6 +53,5 @@ namespace Infrastructure
             _books.Remove(bookToDelete);
             return true;
         }
-
     }
 }

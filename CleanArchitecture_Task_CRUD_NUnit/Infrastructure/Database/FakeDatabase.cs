@@ -1,4 +1,5 @@
-﻿using ClassLibrary;
+﻿using System.Collections.Generic;
+using ClassLibrary;
 
 namespace Infrastructure.Database
 {
