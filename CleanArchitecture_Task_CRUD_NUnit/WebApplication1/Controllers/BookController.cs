@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Application.Commands.Books;
+using Application.Queries.Books;
+using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -7,11 +10,25 @@ namespace WebAPI.Controllers
     [ApiController]
     public class BookController : ControllerBase
     {
+        private readonly IMediator _mediator;
 
-        [HttpGet]
-        public string[] GetBooks()
+
+        public BookController(IMediator mediator)
         {
-            throw new NotImplementedException();
+            _mediator = mediator;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddBook([FromBody] AddBookCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAllBooks()
+        {
+            var result = await _mediator.Send(new GetAllBooksQuery());
+            return Ok(result);
         }
     }
 }

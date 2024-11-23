@@ -1,20 +1,20 @@
 ﻿using ClassLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure
 {
-    public interface IBookRepository
+    public interface IBookRepository<T>
     {
-        Book GetById(int id);
+        Book GetById(int bookId);
 
-        List<Book> GetAll();
-        void Add(Book book);
-        bool Update(Book book);
-        bool Delete(int id);
-        
+        public interface IBookRepository<Book> where Book : class
+        {
+            Book GetById(int id);
+            List<Book> GetAll();
+            void Add(Book book);
+            bool Update(Book book);
+            bool Delete(int id);
+
+        }
     }
+
 }

@@ -1,4 +1,5 @@
 ﻿using ClassLibrary;
+using Domain;
 
 namespace Infrastructure.Database
 {
@@ -10,6 +11,14 @@ namespace Infrastructure.Database
             new Book(2, "Rodi 2", "Book of Rodi 2"),
             new Book(3, "Rodi 3", "Book of Rodi 3"),
             new Book(4, "Rodi 4", "Book of Rodi 4"),
+        };
+
+        public static List<Author> AllAuthorsFromDb { get; set; } = new List<Author>()
+        {
+            new Author("Arjan 1", 20),
+            new Author("Arjan 1", 20),
+            new Author("Arjan 1", 20),
+            new Author("Arjan 1", 20),
         };
     }
 }
