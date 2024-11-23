@@ -14,6 +14,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test_NUnit", "Test_NUnit", "{B2DB0836-53D4-47D7-B784-E78957BBB9E1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{C5B8C818-2E05-4C74-BF39-B3D064E69904}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC9AB738-DC29-4054-9388-DB94BE596DB5} = {DC9AB738-DC29-4054-9388-DB94BE596DB5}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{DC9AB738-DC29-4054-9388-DB94BE596DB5}"
 EndProject

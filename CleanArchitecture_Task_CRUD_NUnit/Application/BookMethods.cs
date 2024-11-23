@@ -1,4 +1,6 @@
-﻿using ClassLibrary;
+﻿using Application.Commands.Books;
+using ClassLibrary;
+using MediatR;
 using System.Data.Common;
 using System.Security.Cryptography.X509Certificates;
 
@@ -7,6 +9,13 @@ namespace Application
     public class BookMethods
     {
         private static List<Book> _book = new List<Book>();
+
+        internal readonly IMediator _mediator;
+
+        public BookMethods(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
 
 
         public static Book AddNewBook(int id, string author, string bookName)

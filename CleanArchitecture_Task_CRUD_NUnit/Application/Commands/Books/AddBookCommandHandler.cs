@@ -5,24 +5,19 @@ using Application.Interfaces;
 
 namespace Application.Commands.Books
 {
-    public class AddBookCommandHandler : IRequestHandler<AddBookCommand, int>
+    public class AddBookCommandHandler : IRequestHandler<AddBookCommand, List<Book>>
     {
-        private readonly IRepository<Book> _repository;
-        private readonly IMapper  _mapper;
+        private readonly List<Book> _books;
 
-        public AddBookCommandHandler(IRepository<Book> repository, IMapper mapper)
+        public AddBookCommandHandler(List<Book> books)
         {
-            _repository = repository;
-            _mapper = mapper;
+            _books = books;
         }
 
-        public Task<int> Handle(AddBookCommand request, CancellationToken cancellationToken)
+        public Task<List<Book>> Handle(AddBookCommand request, CancellationToken cancellationToken)
         {
-            var book = _mapper.Map<Book>(request);
-
-            _repository.Add(book);
-
-            return Task.FromResult(book.Id);       
+            _books.Add(request.NewBook);
+            return Task.FromResult(_books);
         }
     }
 }

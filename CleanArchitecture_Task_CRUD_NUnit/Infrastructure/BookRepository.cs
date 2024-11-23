@@ -1,18 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using ClassLibrary;
-using Infrastructure.Database;
+﻿using ClassLibrary;
 
 namespace Infrastructure
 {
-    public class BookRepository : IBookRepository
+    public class BookRepository : IBookRepository<Book>
     {
-        private readonly List<Book> _books;
-
-        public BookRepository()
-        {
-            _books = FakeDatabase.AllBooksFromDb;
-        }
+        private readonly List<Book> _books = new();
 
         public Book GetById(int id)
         {
@@ -27,9 +19,8 @@ namespace Infrastructure
         public void Add(Book book)
         {
             if (_books.Exists(b => b.Id == book.Id))
-            {
                 throw new Exception("A book with this id already exists.");
-            }
+
             _books.Add(book);
         }
 

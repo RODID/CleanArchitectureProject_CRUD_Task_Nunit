@@ -1,15 +1,14 @@
 ﻿using ClassLibrary;
 using MediatR;
-using Infrastructure;
 using Application.Interfaces;
 
 namespace Application.Queries.Books
 {
     public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQuery, List<Book>>
     {
-        private readonly IRepository<Book> _repository;
+        private readonly IBookRepository<Book> _repository;
 
-        public GetAllBooksQueryHandler(IRepository<Book> repository) 
+        public GetAllBooksQueryHandler(IBookRepository<Book> repository) 
         {
             _repository = repository;
         }

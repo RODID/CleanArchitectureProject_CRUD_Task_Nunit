@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain;
+using MediatR;
 
 namespace Application.Queries.Auhtors
 {
-    internal class GetAuthorByIdQuery
+    public class GetAuthorByIdQuery : IRequest<Author>
     {
+        public string AuthorName { get; }
+
+        public GetAuthorByIdQuery(string authorName)
+        {
+            AuthorName = authorName;
+        }
     }
 }

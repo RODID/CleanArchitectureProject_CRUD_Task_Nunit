@@ -1,17 +1,16 @@
-﻿using MediatR;
+﻿using ClassLibrary;
+using MediatR;
 
 namespace Application.Commands.Books
 {
-    public class AddBookCommand : IRequest<int>
+    public class AddBookCommand : IRequest<List<Book>>
     {
-        public string  Author { get; set; }
-        public string BookName { get; set; }
 
-        public AddBookCommand ( string author, string bookName)
+        public AddBookCommand(Book bookToAdd) 
         {
-            Author = author;
-            BookName = bookName;
+            NewBook = bookToAdd;
         }
+        public Book NewBook { get; }
 
     }
 }

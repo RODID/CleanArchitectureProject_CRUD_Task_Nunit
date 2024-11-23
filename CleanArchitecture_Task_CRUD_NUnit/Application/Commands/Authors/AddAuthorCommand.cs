@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
+using Domain;
 
 namespace Application.Commands.Authors
 {
-    internal class AddAuthorCommand
+    public class AddAuthorCommand : IRequest<Author>
     {
+        public Author NewAuthor { get; }
+
+        public AddAuthorCommand(Author author)
+        {
+            NewAuthor = author;
+        }
     }
 }

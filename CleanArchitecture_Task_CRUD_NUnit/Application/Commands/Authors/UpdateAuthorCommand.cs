@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain;
+using MediatR;
 
 namespace Application.Commands.Authors
 {
-    internal class UpdateAuthorCommand
+    public class UpdateAuthorCommand : IRequest<bool>
     {
+        public Author UpdatedAuthor { get; }
+
+        public UpdateAuthorCommand(Author updatedAuthor)
+        {
+            UpdatedAuthor = updatedAuthor;
+        }
     }
 }

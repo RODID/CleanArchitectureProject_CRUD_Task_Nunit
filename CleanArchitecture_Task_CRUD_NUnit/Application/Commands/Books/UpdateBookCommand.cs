@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ClassLibrary;
+using MediatR;
 
 namespace Application.Commands.Books
 {
-    internal class UpdateBookCommand
+    public class UpdateBookCommand : IRequest<bool>
     {
+        public Book UpdateBook { get; }
+
+        public UpdateBookCommand(Book updateBook)
+        {
+            UpdateBook = updateBook;
+        }
+
     }
 }
