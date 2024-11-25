@@ -11,8 +11,6 @@ namespace WebAPI.Controllers
     public class BookController : ControllerBase
     {
         private readonly IMediator _mediator;
-
-
         public BookController(IMediator mediator)
         {
             _mediator = mediator;
@@ -21,63 +19,65 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Book>>> GetAllBooks()
         {
-            var query = new GetAllBooksQuery();
-            var books = await _mediator.Send(query);
-            return Ok(books);
+            try
+            {
+                var books = await _mediator.Send(new GetAllBooksQuery());
+                return books;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        [HttpGet("{bookId}")]
-        public async Task<ActionResult<Book>> GetBookById(int bookId)
-        {
-            var query = new GetBookByIdQuery(bookId);
-            var book = await _mediator.Send(query);
-            if (book == null)
-            {
-                return NotFound();
-            }
-            return Ok(book);
-        }
+        //[HttpGet("{bookId}")]
+        //public async Task<ActionResult<Book>> GetBookById(int bookId)
+        //{
+        //    var query = new GetBookByIdQuery(bookId);
+        //    var book = await _mediator.Send(query);
+        //    if (book == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return Ok(book);
+        //}
 
         [HttpPost]
-        public async Task<ActionResult<Book>> AddBook([FromBody] Book book)
+        public async void Post([FromBody] Book bookToAdd)
         {
-            var command = new AddBookCommand(book);
-            var addedBook = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetBookById), new { bookId = addedBook.BookId }, addedBook);
+            await _mediator.Send(new AddBookCommand(bookToAdd));
         }
 
         [HttpPut("{bookId}")]
-        public async Task<ActionResult> UpdateBook(int bookId, [FromBody] Book book)
+        public async Task<ActionResult<Book>> UpdateBook(int bookId, [FromBody]  UpdateBookCommand updateBookCommand)
         {
-            if (bookId != book.Id)
+            if (bookId != updateBookCommand.BookId)
             {
-                return BadRequest("Book ID mismatch.");
+                return BadRequest("The book ID in the URL and the body do not match. ");
             }
 
-            var command = new UpdateBookCommand(book);
-            var result = await _mediator.Send(command);
-
-            if (!result)
+            try
             {
-                return NotFound();
+                var updateBook = await _mediator.Send(updateBookCommand);
+
+                    return Ok(updateBook);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
 
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpDelete("{bookId}")]
         public async Task<ActionResult> DeleteBook(int bookId)
         {
-            var command = new DeleteBookCommand(bookId);
-            var result = await _mediator.Send(command);
-
-            if (!result)
-            {
-                return NotFound();
-            }
-
+            await _mediator.Send(new DeleteBookCommand(bookId));
             return NoContent();
         }
-
     }
 }
