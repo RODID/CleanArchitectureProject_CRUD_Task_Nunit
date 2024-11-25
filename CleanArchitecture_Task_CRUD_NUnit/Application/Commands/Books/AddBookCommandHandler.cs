@@ -1,23 +1,21 @@
 ﻿using MediatR;
 using ClassLibrary;
-using AutoMapper;
-using Application.Interfaces;
+using Infrastructure.Database;
 
 namespace Application.Commands.Books
 {
     public class AddBookCommandHandler : IRequestHandler<AddBookCommand, List<Book>>
     {
-        private readonly List<Book> _books;
-
-        public AddBookCommandHandler(List<Book> books)
+        private readonly FakeDatabase _fakeDatabase;
+        public AddBookCommandHandler(FakeDatabase fakeDatabase)
         {
-            _books = books;
+            _fakeDatabase = fakeDatabase;
         }
 
         public Task<List<Book>> Handle(AddBookCommand request, CancellationToken cancellationToken)
         {
-            _books.Add(request.NewBook);
-            return Task.FromResult(_books);
+            _fakeDatabase.AllBooksFromDb.Add(request.NewBook);
+            return Task.FromResult(_fakeDatabase.AllBooksFromDb);
         }
     }
 }

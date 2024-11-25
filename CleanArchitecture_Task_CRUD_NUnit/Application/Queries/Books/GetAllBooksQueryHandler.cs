@@ -1,22 +1,21 @@
 ﻿using ClassLibrary;
+using Infrastructure.Database;
 using MediatR;
-using Application.Interfaces;
 
 namespace Application.Queries.Books
 {
     public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQuery, List<Book>>
     {
-        private readonly IBookRepository<Book> _repository;
-
-        public GetAllBooksQueryHandler(IBookRepository<Book> repository) 
+        private readonly FakeDatabase _fakeDatabase;
+        public GetAllBooksQueryHandler(FakeDatabase fakeDatabase) 
         {
-            _repository = repository;
+            _fakeDatabase = fakeDatabase;
         }
 
         public Task<List<Book>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
         {
-            var books = _repository.GetAll();
-            return Task.FromResult(books);
+            return Task.FromResult(_fakeDatabase.AllBooksFromDb);
+          
         }
     }
 }

@@ -2,16 +2,17 @@
 {
     public class Book
     {
-        public Book(int id, string author, string bookName)
+        public Book(int id, string bookName, string author)
         {
             Id = id;
-            Author = author;
             BookName = bookName;
+            Author = author;
+            
         }
 
         public int Id { get; set; }
-        public string Author { get; set; }
         public string BookName { get; set; }
+        public string Author { get; set; }
 
     }
 }

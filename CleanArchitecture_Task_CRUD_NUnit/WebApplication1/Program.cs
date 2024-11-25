@@ -1,7 +1,4 @@
-
-using Application.Interfaces;
 using ClassLibrary;
-using Infrastructure;
 
 namespace WebAPI
 {
@@ -17,9 +14,10 @@ namespace WebAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<Infrastructure.IBookRepository<Book>, BookRepository>();
+            builder.Services.AddSingleton(new List<Book>());
 
             var app = builder.Build();
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
