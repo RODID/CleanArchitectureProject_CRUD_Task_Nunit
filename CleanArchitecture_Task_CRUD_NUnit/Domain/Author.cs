@@ -2,14 +2,15 @@
 {
     public class Author
     {
-        public Author(string authorName, int authorAge)
+        public Author(int id, string name)
         {
-            AuthorName = authorName;
-            AuthorAge = authorAge;
+            Id = id;
+            Name = name;
         }
 
-        public string AuthorName { get; set; }
-        public int AuthorAge { get; set; }
+        public int Id { get; set; } 
+        public string Name { get; set; }
+
         
 
     }

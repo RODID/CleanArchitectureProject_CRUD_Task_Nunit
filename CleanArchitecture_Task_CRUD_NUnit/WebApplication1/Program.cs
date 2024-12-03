@@ -1,4 +1,5 @@
 using ClassLibrary;
+using Infrastructure;
 
 namespace WebAPI
 {
@@ -15,7 +16,7 @@ namespace WebAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddSingleton(new List<Book>());
-
+            builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("DefaultConnection")!);
             var app = builder.Build();
 
 

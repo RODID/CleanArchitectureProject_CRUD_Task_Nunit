@@ -5,14 +5,17 @@
         public Book(int id, string bookName, string author)
         {
             Id = id;
-            BookName = bookName;
-            Author = author;
+            Title = bookName;
+            Description = author;
             
         }
+        public Book()
+        {
 
+        }
         public int Id { get; set; }
-        public string BookName { get; set; }
-        public string Author { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
 
     }
 }

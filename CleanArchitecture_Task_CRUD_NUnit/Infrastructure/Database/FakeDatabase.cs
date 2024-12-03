@@ -1,29 +1,38 @@
 ﻿using ClassLibrary;
 using Domain;
+using System.Threading;
 
 namespace Infrastructure.Database
 {
     public class FakeDatabase
     {
-        public List<Book> AllBooksFromDb { get; set; }
+        public List<Book> AllBooksFromDB { get; set; }
         public List<Author> AllAuthorsFromDB { get; set; }
+
+        public List<User> AllUsersFromDB { get; set; }
 
         public FakeDatabase()
         {
-            AllBooksFromDb = new List<Book>
+            AllBooksFromDB = new List<Book>
             {
-                new Book(1, "Rodi 1", "Book of Rodi 1"),
-                new Book(2, "Rodi 2", "Book of Rodi 2"),
-                new Book(3, "Rodi 3", "Book of Rodi 3"),
-                new Book(4, "Rodi 4", "Book of Rodi 4")
+                new Book(1, "Rodi 1", "Journey"),
+                new Book(2, "Rodi 2", "Fighting"),
+                new Book(3, "Rodi 3", "Crime"),
             };
 
             AllAuthorsFromDB = new List<Author>
             {
-                new Author("Arjan 1", 20),
-                new Author("Arjan 1", 20),
-                new Author("Arjan 1", 20),
-                new Author("Arjan 1", 20),
+                new Author(1, "Arjan1"),
+                new Author(2, "Arjan2"),
+                new Author(3, "Arjan3"),
+
+            };
+
+            AllUsersFromDB = new List<User>
+            {
+                new User(Guid.NewGuid(), "UserOne", "Arjan!123"),
+                new User(Guid.NewGuid(), "UserTwo", "Arjan!123"),
+                new User(Guid.NewGuid(), "UserThree", "Arjan!123")
             };
         }
         

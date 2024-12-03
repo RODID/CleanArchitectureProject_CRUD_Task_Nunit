@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Infrastructure.Database;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -10,16 +11,16 @@ namespace Application.Queries.Auhtors
 {
     public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, List<Author>>
     {
-        private readonly List<Author> _authors;
+        private readonly FakeDatabase _fakeDatabase;
 
-        public GetAllAuthorsQueryHandler(List<Author> authors)
+        public GetAllAuthorsQueryHandler(FakeDatabase fakeDatabase)
         {
-            _authors = authors;
+            _fakeDatabase = fakeDatabase;
         }
 
         public Task<List<Author>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new List<Author>(_authors));
+            return Task.FromResult(_fakeDatabase.AllAuthorsFromDB);
         }
     }
 }

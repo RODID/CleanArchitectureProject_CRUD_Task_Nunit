@@ -2,7 +2,7 @@
 using ClassLibrary;
 using Infrastructure.Database;
 
-namespace Application.Commands.Books
+namespace Application.Commands.Books.AddBook
 {
     public class AddBookCommandHandler : IRequestHandler<AddBookCommand, List<Book>>
     {
@@ -14,8 +14,8 @@ namespace Application.Commands.Books
 
         public Task<List<Book>> Handle(AddBookCommand request, CancellationToken cancellationToken)
         {
-            _fakeDatabase.AllBooksFromDb.Add(request.NewBook);
-            return Task.FromResult(_fakeDatabase.AllBooksFromDb);
+            _fakeDatabase.AllBooksFromDB.Add(request.NewBook);
+            return Task.FromResult(_fakeDatabase.AllBooksFromDB);
         }
     }
 }

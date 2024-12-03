@@ -1,7 +1,11 @@
 ﻿using Application.Commands.Authors;
+using Application.Commands.Authors.AddAuthor;
+using Application.Commands.Authors.DeleteAuthor;
+using Application.Commands.Authors.UpdateAuthor;
 using Application.Queries.Auhtors;
 using Domain;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -17,65 +21,51 @@ namespace WebAPI.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<Author>>> GetAllAuthors()
         {
-            var query = new GetAllAuthorsQuery();
-            var authors = await _mediator.Send(query);
-            return Ok(authors);
-        }
-
-        [HttpGet("{authorName}")]
-        public async Task<ActionResult<Author>> GetAuthorById(string authorName)
-        {
-            var query = new GetAuthorByIdQuery(authorName);
-            var author = await _mediator.Send(query);
-            if (author == null)
+            try
             {
-                return NotFound();
+                var authors = await _mediator.Send(new GetAllAuthorsQuery());
+                return Ok(authors);
             }
-            return Ok(author);
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<Author>> AddAuthor([FromBody] Author author)
+        public async void PostAuthor([FromBody] Author authorToAdd)
         {
-            var command = new AddAuthorCommand(author);
-            var addedAuthor = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetAuthorById), new { authorName = addedAuthor.AuthorName }, addedAuthor);
+            await _mediator.Send(new AddAuthorCommand(authorToAdd));
         }
 
-        [HttpPut("{authorName}")]
-        public async Task<ActionResult> UpdateAuthor(string authorName, [FromBody] Author author)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Author>> PutAuthor(int id, [FromBody] UpdateAuthorCommand updateAuthorCommand)
         {
-            if (authorName != author.AuthorName)
+            if (id!= updateAuthorCommand.AuthorId)
             {
-                return BadRequest("Author name mismatch.");
+                return BadRequest("The Author ID in the URL and the body dosent match.");
             }
-
-            var command = new UpdateAuthorCommand(author);
-            var result = await _mediator.Send(command);
-
-            if (!result)
+            try
             {
-                return NotFound();
-            }
+                var updateAuthor = await _mediator.Send(updateAuthorCommand);
 
-            return NoContent();
+                return Ok(updateAuthor);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        [HttpDelete("{authorName}")]
-        public async Task<ActionResult> DeleteAuthor(string authorName)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteAuthor(int id)
         {
-            var command = new DeleteAuthorCommand(authorName);
-            var result = await _mediator.Send(command);
-
-            if (!result)
-            {
-                return NotFound();
-            }
-
-            return NoContent();
+                await _mediator.Send(new DeleteAuthorCommand(id));
+                return NoContent();
         }
     }
 }
