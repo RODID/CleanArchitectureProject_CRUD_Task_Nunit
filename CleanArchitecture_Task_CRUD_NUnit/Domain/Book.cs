@@ -1,21 +1,20 @@
-﻿namespace ClassLibrary
-{
-    public class Book
-    {
-        public Book(int id, string bookName, string author)
-        {
-            Id = id;
-            Title = bookName;
-            Description = author;
-            
-        }
-        public Book()
-        {
+﻿namespace ClassLibrary;
 
-        }
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
+public class Book
+{
+    public Book(Guid id, string bookName, string author)
+    {
+        Id = id;
+        Title = bookName;
+        Description = author;
+        
+    }
+    public Book()
+    {
 
     }
+    public Guid Id { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+
 }

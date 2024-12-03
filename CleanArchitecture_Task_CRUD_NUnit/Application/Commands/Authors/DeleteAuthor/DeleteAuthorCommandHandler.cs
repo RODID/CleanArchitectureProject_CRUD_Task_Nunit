@@ -1,10 +1,11 @@
 ﻿using Domain;
+using Domain.CommandOperationResult;
 using Infrastructure.Database;
 using MediatR;
 
 namespace Application.Commands.Authors.DeleteAuthor
 {
-    public class DeleteAuthorCommandHandler : IRequestHandler<DeleteAuthorCommand, List<Author>>
+    public class DeleteAuthorCommandHandler : IRequestHandler<DeleteAuthorCommand, OperationResult<List<Author>>>
     {
         private readonly FakeDatabase _fakeDatabase;
 
@@ -13,14 +14,25 @@ namespace Application.Commands.Authors.DeleteAuthor
             _fakeDatabase = fakeDatabase;
         }
 
-        public Task<List<Author>> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
+        public Task<OperationResult<List<Author>>> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
         {
-            var authorToRemove = _fakeDatabase.AllAuthorsFromDB.FirstOrDefault(a => a.Id == request.AuthorId);
-            if (authorToRemove != null)
+            try
             {
+                var authorToRemove = _fakeDatabase.AllAuthorsFromDB.FirstOrDefault(a => a.Id == request.AuthorId);
+                if (authorToRemove == null)
+                {
+                    return Task.FromResult(OperationResult<List<Author>>.Failure("Auhtor not found", "failed to delete author"));
+                }
+
                 _fakeDatabase.AllAuthorsFromDB.Remove(authorToRemove);
+
+                return Task.FromResult(OperationResult<List<Author>>.Success(_fakeDatabase.AllAuthorsFromDB, "Author Successfully removed!"));
             }
-            return Task.FromResult(_fakeDatabase.AllAuthorsFromDB);
+            catch (Exception ex)
+            {
+                return Task.FromResult(OperationResult<List<Author>>.Failure(ex.Message, "An error occurred when removing Author from list!"));
+            }
+           
         }
     }
 }
