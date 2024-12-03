@@ -2,25 +2,27 @@
 using MediatR;
 using Infrastructure.Database;
 
-namespace Application.Commands.Books
+namespace Application.Commands.Books.DeleteBook
 {
     public class DeleteBookCommandHandler : IRequestHandler<DeleteBookCommand, bool>
     {
-        private readonly List<Book> _books;
+        private readonly FakeDatabase _fakeDatabase;
 
-        public DeleteBookCommandHandler(List<Book> books)
+        public DeleteBookCommandHandler(FakeDatabase fakeDatabase)
         {
-            _books = books;
+            _fakeDatabase = fakeDatabase;
         }
 
         public Task<bool> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
         {
-            var bookTodelete = _books.SingleOrDefault(b => b.Id == request.BookId);
-            if (bookTodelete == null) 
+            var bookToRemove = _fakeDatabase.AllBooksFromDB.FirstOrDefault(a => a.Id == request.BookId);
+            if (bookToRemove != null)
             {
                 return Task.FromResult(false);
             }
-            _books.Remove(bookTodelete);
+
+            _fakeDatabase.AllBooksFromDB.Remove(bookToRemove);
+
             return Task.FromResult(true);
 
         }

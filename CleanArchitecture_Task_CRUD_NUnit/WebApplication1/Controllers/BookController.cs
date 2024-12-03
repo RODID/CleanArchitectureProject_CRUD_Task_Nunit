@@ -1,4 +1,6 @@
-﻿using Application.Commands.Books;
+﻿using Application.Commands.Books.AddBook;
+using Application.Commands.Books.DeleteBook;
+using Application.Commands.Books.UpdateBook;
 using Application.Queries.Books;
 using ClassLibrary;
 using MediatR;
@@ -22,7 +24,7 @@ namespace WebAPI.Controllers
             try
             {
                 var books = await _mediator.Send(new GetAllBooksQuery());
-                return books;
+                return Ok (books);
             }
             catch (Exception ex)
             {
@@ -43,15 +45,15 @@ namespace WebAPI.Controllers
         //}
 
         [HttpPost]
-        public async void Post([FromBody] Book bookToAdd)
+        public async void PostBook([FromBody] Book bookToAdd)
         {
             await _mediator.Send(new AddBookCommand(bookToAdd));
         }
 
-        [HttpPut("{bookId}")]
-        public async Task<ActionResult<Book>> UpdateBook(int bookId, [FromBody]  UpdateBookCommand updateBookCommand)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Book>> UpdateBook(int id, [FromBody]  UpdateBookCommand updateBookCommand)
         {
-            if (bookId != updateBookCommand.BookId)
+            if (id != updateBookCommand.BookId)
             {
                 return BadRequest("The book ID in the URL and the body do not match. ");
             }
@@ -73,10 +75,10 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpDelete("{bookId}")]
-        public async Task<ActionResult> DeleteBook(int bookId)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteBook(int id)
         {
-            await _mediator.Send(new DeleteBookCommand(bookId));
+            await _mediator.Send(new DeleteBookCommand(id));
             return NoContent();
         }
     }

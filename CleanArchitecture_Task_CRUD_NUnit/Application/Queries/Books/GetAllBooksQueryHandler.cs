@@ -14,7 +14,7 @@ namespace Application.Queries.Books
 
         public Task<List<Book>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_fakeDatabase.AllBooksFromDb);
+            return Task.FromResult(_fakeDatabase.AllBooksFromDB);
           
         }
     }
