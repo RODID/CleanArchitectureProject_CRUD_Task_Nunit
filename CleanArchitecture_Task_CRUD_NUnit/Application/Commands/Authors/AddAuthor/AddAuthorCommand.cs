@@ -4,13 +4,13 @@ using Domain.CommandOperationResult;
 
 namespace Application.Commands.Authors.AddAuthor
 {
-    public class AddAuthorCommand : IRequest<OperationResult<List<Author>>>
+    public class AddAuthorCommand : IRequest<OperationResult<bool>>
     {
-        public Author NewAuthor { get; }
+        public string Name { get; }
 
-        public AddAuthorCommand(Author authorToAdd)
+        public AddAuthorCommand(string authorToAdd)
         {
-            NewAuthor = authorToAdd;
+            Name = authorToAdd;
         }
     }
 }

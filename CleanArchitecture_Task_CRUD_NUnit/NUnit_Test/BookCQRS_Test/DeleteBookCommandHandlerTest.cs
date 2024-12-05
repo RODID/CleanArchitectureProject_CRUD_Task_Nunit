@@ -12,38 +12,43 @@ namespace Test_CRUD.BookCQRS_Test
     public class DeleteBookCommandHandlerTest
     {
         private FakeDatabase _fakeDatabase;
+        private DeleteBookCommandHandler _handler;
 
         [SetUp]
         public void SetUp() 
         {
             _fakeDatabase = new FakeDatabase();
+            _handler = new DeleteBookCommandHandler(_fakeDatabase);
         }
 
         [Test]
         public async Task DeleteBookCommandHandler_ShouldRemoveBook_WhenBookExists()
         {
-            var bookToDelete = new Book(1, "Author", "Book Title");
+            var bookId = Guid.NewGuid();
+            var bookToDelete = new Book(bookId, "Book Title", "Description");
             _fakeDatabase.AllBooksFromDB.Add(bookToDelete);
 
-            var command = new DeleteBookCommand(1);
-            var handler = new DeleteBookCommandHandler(_fakeDatabase);
+            var command = new DeleteBookCommand(bookId);
 
-            var result = await handler.Handle(command, CancellationToken.None);
+            var result = await _handler.Handle(command, CancellationToken.None);
 
-            Assert.IsTrue(result);
-            Assert.AreEqual(0, _fakeDatabase.AllBooksFromDB.Count);
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual("Book deleted successfully.", result.Message);
+            Assert.AreEqual(3, _fakeDatabase.AllBooksFromDB.Count);
         }
 
         [Test]
         public async Task DeleteBookCommandHandler_ShouldReturnFalse_WhenBookDoseNotExist()
         {
-            var command = new DeleteBookCommand(99);
-            var handler = new DeleteBookCommandHandler(_fakeDatabase);
+            
+            var nonExistingBookId = Guid.NewGuid();
+            var deleteBookCommand = new DeleteBookCommand(nonExistingBookId);
 
-            var result = await handler.Handle(command, CancellationToken.None);
+            var result = await _handler.Handle(deleteBookCommand, CancellationToken.None);
 
-            Assert.IsFalse(result);
-            Assert.AreEqual(0, _fakeDatabase.AllBooksFromDB.Count);
+            Assert.IsFalse(result.IsSuccess);
+            Assert.AreEqual("Book not found.", result.ErrorMessage);
+            Assert.AreEqual(3, _fakeDatabase.AllBooksFromDB.Count);
         }
     }
 }

@@ -35,6 +35,12 @@ namespace Infrastructure.Database
                 new User(Guid.NewGuid(), "UserThree", "Arjan!123")
             };
         }
-        
+
+        public void Clear()
+        {
+            AllAuthorsFromDB.Clear();
+            AllBooksFromDB.Clear();
+            AllUsersFromDB.Clear();
+        }
     }
 }

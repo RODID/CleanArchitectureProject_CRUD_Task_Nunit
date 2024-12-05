@@ -2,11 +2,11 @@
 
 public class Book
 {
-    public Book(Guid id, string bookName, string author)
+    public Book(Guid id, string bookName, string description)
     {
         Id = id;
         Title = bookName;
-        Description = author;
+        Description = description;
         
     }
     public Book()

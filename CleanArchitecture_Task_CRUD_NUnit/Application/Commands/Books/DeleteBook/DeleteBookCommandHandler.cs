@@ -1,10 +1,11 @@
 ﻿using ClassLibrary;
 using MediatR;
 using Infrastructure.Database;
+using Domain.CommandOperationResult;
 
 namespace Application.Commands.Books.DeleteBook
 {
-    public class DeleteBookCommandHandler : IRequestHandler<DeleteBookCommand, bool>
+    public class DeleteBookCommandHandler : IRequestHandler<DeleteBookCommand,OperationResult<bool>>
     {
         private readonly FakeDatabase _fakeDatabase;
 
@@ -13,18 +14,28 @@ namespace Application.Commands.Books.DeleteBook
             _fakeDatabase = fakeDatabase;
         }
 
-        public Task<bool> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
+        public Task<OperationResult<bool>> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
         {
-            var bookToRemove = _fakeDatabase.AllBooksFromDB.FirstOrDefault(a => a.Id == request.BookId);
-            if (bookToRemove != null)
+            try
             {
-                return Task.FromResult(false);
+                var bookToRemove = _fakeDatabase.AllBooksFromDB.FirstOrDefault(a => a.Id == request.BookId);
+                if (bookToRemove == null)
+                {
+                    return Task.FromResult(OperationResult<bool>.Failure("Book not found."));
+                }
+
+                _fakeDatabase.AllBooksFromDB.Remove(bookToRemove);
+
+                return Task.FromResult(OperationResult<bool>.Success(true, "Book deleted successfully."));
+
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(OperationResult<bool>.Failure($"An error occurred: {ex.Message}"));
             }
 
-            _fakeDatabase.AllBooksFromDB.Remove(bookToRemove);
-
-            return Task.FromResult(true);
 
         }
+
     }
 }

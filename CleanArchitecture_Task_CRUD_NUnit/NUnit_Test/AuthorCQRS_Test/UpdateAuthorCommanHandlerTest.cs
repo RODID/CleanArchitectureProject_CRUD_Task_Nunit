@@ -4,11 +4,15 @@ using NUnit.Framework;
 using Domain;
 using Infrastructure.Database;
 using Application.Commands.Authors.UpdateAuthor;
+using Domain.CommandOperationResult;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace Test_CRUD.AuthorCQRS_Test
 {
     [TestFixture]
-    public class UpdateAuthorCommanHandlerTest
+    public class UpdateAuthorCommandHandlerTest
     {
         private FakeDatabase _fakeDatabase;
         private UpdateAuthorCommandHandler _handler;
@@ -21,34 +25,57 @@ namespace Test_CRUD.AuthorCQRS_Test
         }
 
         [Test]
-        public async Task UpdateAuthorCommandHandler_ShouldUpdateAuthor_WheneValidInformationIsGiven()
+        public async Task UpdateAuthorCommandHandler_ShouldUpdateAuthor_WithExistingAuthor()
         {
-            var existingAuthor = new Author(1, "Rodi");
-            _fakeDatabase.AllAuthorsFromDB.Add(existingAuthor);
+            // Arrange: Setup a list of authors
+            var authors = new List<Author>
+            {
+                new Author(Guid.NewGuid(), "Arjan1"),
+                new Author(Guid.NewGuid(), "Arjan2"),
+                new Author(Guid.NewGuid(), "Arjan3")
+            };
+            _fakeDatabase.AllAuthorsFromDB.AddRange(authors);
 
-            var command = new UpdateAuthorCommand(1,"Updated Rodi");
+            // Select an existing author to update
+            var authorToUpdate = authors[1];
+            var updatedName = "Updated Author2";
+            var command = new UpdateAuthorCommand(authorToUpdate.Id, updatedName);
 
+            // Act: Execute the handler
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            Assert.IsNotNull(result, "Result Should not be null.");
-            Assert.AreEqual("Updated Rodi", result.Name, "Author's name should be updated!");
-            Assert.AreEqual(1, result.Id, "Author's ID should remain same!");
+            // Assert: Validate the results
+            Assert.IsNotNull(result, "Result should not be null.");
+            Assert.IsTrue(result.IsSuccess, "Result should indicate success.");
+            Assert.IsNotNull(result.Data, "Result should contain data.");
+            Assert.AreEqual(updatedName, result.Data.Name, "Author's name should be updated.");
+            Assert.AreEqual(authorToUpdate.Id, result.Data.Id, "Author's ID should remain the same.");
 
-            Assert.AreEqual(1, _fakeDatabase.AllAuthorsFromDB.Count, "Database should still contain only one author.");
-            var updatedAuthor = _fakeDatabase.AllAuthorsFromDB.First();
-            Assert.AreEqual("Updated Rodi", updatedAuthor.Name, "Database should have the updated author's name.");
-            Assert.AreEqual(1, updatedAuthor.Id, "Database should have the same author ID.");
+            // Verify only the updated author's name is changed
+            var updatedAuthor = _fakeDatabase.AllAuthorsFromDB.First(a => a.Id == authorToUpdate.Id);
+            Assert.AreEqual(updatedName, updatedAuthor.Name, "Database should have the updated author's name.");
+
+            // Ensure other authors are unchanged
+            Assert.AreEqual("Arjan1", _fakeDatabase.AllAuthorsFromDB[0].Name, "First author's name should remain unchanged.");
+            Assert.AreEqual("Arjan3", _fakeDatabase.AllAuthorsFromDB[2].Name, "Third author's name should remain unchanged.");
         }
 
         [Test]
-        public async Task UpdateAuthorCommandHandler_ShouldNotUpdate_WhenAuthorDoesNotExist()
+        public async Task UpdateAuthorCommandHandler_ShouldReturnFailure_WhenAuthorDoesNotExist()
         {
-            var command = new UpdateAuthorCommand(99, "Nonexistent Author");
+            // Arrange
+            var authorId = Guid.NewGuid();
+            var command = new UpdateAuthorCommand(authorId, "Nonexistent Author");
 
+            // Act
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            Assert.IsNull(result, "Result should be null when the author does not exist.");
-            Assert.AreEqual(0, _fakeDatabase.AllAuthorsFromDB.Count, "Database should remain unchanged.");
+            // Assert
+            Assert.IsNotNull(result, "Result should not be null.");
+            Assert.IsFalse(result.IsSuccess, "Result should indicate failure.");
+            Assert.IsNull(result.Data, "Result data should be null for a failed operation.");
+            Assert.AreEqual($"Author with ID {authorId} wasn't found.", result.ErrorMessage, "Error message should match.");
+            Assert.AreEqual(3, _fakeDatabase.AllAuthorsFromDB.Count, "Database should remain unchanged.");
         }
     }
 }

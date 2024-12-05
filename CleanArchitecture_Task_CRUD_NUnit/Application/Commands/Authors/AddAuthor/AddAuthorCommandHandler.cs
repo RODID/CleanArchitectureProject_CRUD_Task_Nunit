@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Commands.Authors.AddAuthor
 {
-    public class AddAuthorCommandHandler : IRequestHandler<AddAuthorCommand, OperationResult<List<Author>>>
+    public class AddAuthorCommandHandler : IRequestHandler<AddAuthorCommand, OperationResult<bool>>
     {
         private readonly FakeDatabase _fakeDatabase;
 
@@ -14,24 +14,28 @@ namespace Application.Commands.Authors.AddAuthor
             _fakeDatabase = fakeDatabase; ;
         }
 
-        public Task<OperationResult<List<Author>>> Handle(AddAuthorCommand request, CancellationToken cancellationToken)
+        public Task<OperationResult<bool>> Handle(AddAuthorCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                if (_fakeDatabase.AllAuthorsFromDB.Exists(a => a.Name == request.NewAuthor.Name))
+               if (string.IsNullOrWhiteSpace(request.Name))
+               {
+                 return Task.FromResult(OperationResult<bool>.Failure("Auhtor name is invalid."));
+               }
+
+                if (_fakeDatabase.AllAuthorsFromDB.Any(a => a.Name == request.Name))
                 {
-                    return Task.FromResult(OperationResult<List<Author>>.Failure("Author already exists, Failed to add auhtor"));
+                    return Task.FromResult(OperationResult<bool>.Failure("Duplicate author detected."));
                 }
 
-                _fakeDatabase.AllAuthorsFromDB.Add(request.NewAuthor);
+               _fakeDatabase.AllAuthorsFromDB.Add(new Author(Guid.NewGuid(), request.Name));
 
-                return Task.FromResult(OperationResult <List<Author>>.Success(_fakeDatabase.AllAuthorsFromDB, "Author added successfuly"));
+                return Task.FromResult(OperationResult<bool>.Success(true));
             }
             catch (Exception ex)
             {
-                return Task.FromResult(OperationResult<List<Author>>.Failure(ex.Message, "An error occured while adding the author."));
+                return Task.FromResult(OperationResult<bool>.Failure("An Error Occured"));
             }
-
         }
     }
 }

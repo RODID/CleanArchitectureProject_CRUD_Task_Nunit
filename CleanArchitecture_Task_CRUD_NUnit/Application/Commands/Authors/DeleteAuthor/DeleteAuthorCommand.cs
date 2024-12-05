@@ -6,11 +6,11 @@ namespace Application.Commands.Authors.DeleteAuthor
 {
     public class DeleteAuthorCommand : IRequest<OperationResult<List<Author>>>
     {
-        public int AuthorId { get; }
+        public Guid AuthorId { get; }
 
-        public DeleteAuthorCommand(int authorId)
+        public DeleteAuthorCommand(Guid authorId)
         {
-            AuthorId = authorId;
+            AuthorId = Guid.NewGuid();
         }
 
 
