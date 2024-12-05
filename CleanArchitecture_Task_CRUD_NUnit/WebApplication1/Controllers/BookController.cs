@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Book>> UpdateBook(int id, [FromBody]  UpdateBookCommand updateBookCommand)
+        public async Task<ActionResult<Book>> UpdateBook(Guid id, [FromBody]  UpdateBookCommand updateBookCommand)
         {
             if (id != updateBookCommand.BookId)
             {
@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteBook(int id)
+        public async Task<ActionResult> DeleteBook(Guid id)
         {
             await _mediator.Send(new DeleteBookCommand(id));
             return NoContent();

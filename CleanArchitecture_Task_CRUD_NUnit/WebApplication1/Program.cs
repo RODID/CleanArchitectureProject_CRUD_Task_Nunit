@@ -17,6 +17,7 @@ namespace WebAPI
             builder.Services.AddSwaggerGen();
             builder.Services.AddSingleton(new List<Book>());
             builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("DefaultConnection")!);
+
             var app = builder.Build();
 
 

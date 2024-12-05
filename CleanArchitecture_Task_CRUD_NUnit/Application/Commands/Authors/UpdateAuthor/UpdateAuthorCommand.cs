@@ -1,14 +1,15 @@
 ﻿using Domain;
+using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Commands.Authors.UpdateAuthor
 {
-    public class UpdateAuthorCommand : IRequest<Author>
+    public class UpdateAuthorCommand : IRequest<OperationResult<Author>>
     {
-        public int AuthorId { get; }
+        public Guid AuthorId { get; }
         public string NewName { get; }
 
-        public UpdateAuthorCommand(int authorId, string authorName)
+        public UpdateAuthorCommand(Guid authorId, string authorName)
         {
             AuthorId = authorId;
             NewName = authorName;

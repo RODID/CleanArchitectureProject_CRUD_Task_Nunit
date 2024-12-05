@@ -15,16 +15,16 @@ namespace Infrastructure.Database
         {
             AllBooksFromDB = new List<Book>
             {
-                new Book(1, "Rodi 1", "Journey"),
-                new Book(2, "Rodi 2", "Fighting"),
-                new Book(3, "Rodi 3", "Crime"),
+                new Book(Guid.NewGuid(), "Rodi 1", "Journey"),
+                new Book(Guid.NewGuid(), "Rodi 2", "Fighting"),
+                new Book(Guid.NewGuid(), "Rodi 3", "Crime"),
             };
 
             AllAuthorsFromDB = new List<Author>
             {
-                new Author(1, "Arjan1"),
-                new Author(2, "Arjan2"),
-                new Author(3, "Arjan3"),
+                new Author(Guid.NewGuid(), "Arjan1"),
+                new Author(Guid.NewGuid(), "Arjan2"),
+                new Author(Guid.NewGuid(), "Arjan3"),
 
             };
 
@@ -35,6 +35,12 @@ namespace Infrastructure.Database
                 new User(Guid.NewGuid(), "UserThree", "Arjan!123")
             };
         }
-        
+
+        public void Clear()
+        {
+            AllAuthorsFromDB.Clear();
+            AllBooksFromDB.Clear();
+            AllUsersFromDB.Clear();
+        }
     }
 }

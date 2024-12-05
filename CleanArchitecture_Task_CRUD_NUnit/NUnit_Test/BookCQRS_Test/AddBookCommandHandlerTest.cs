@@ -13,50 +13,53 @@ namespace Test_CRUD.BookCQRS_Test
     {
 
         private FakeDatabase _fakeDatabase;
+        private AddBookCommandHandler _handler;
 
         [SetUp]
         public void SetUp() 
         {
             _fakeDatabase = new FakeDatabase();
+            _fakeDatabase.Clear();
+            _handler = new AddBookCommandHandler(_fakeDatabase);
         } 
         [Test]
-        [TestCase(1, "Author", "Book Title")]
-        public async Task AddBookCommandHandler_ShouldAddBook_WhenValidDataProvided(int id, string author, string bookName)
+        [TestCase(1, "Rodi 1", "Journey")]
+        public async Task AddBookCommandHandler_ShouldAddBook_WhenValidDataProvided(int id, string bookName, string description)
         {
+            _fakeDatabase.Clear();
             //ARRANGE
-            var bookToAdd = new Book(id, author, bookName);
+            var bookId =Guid.NewGuid();
+            var bookToAdd = new Book(bookId, bookName, description);
             var addBookCommand = new AddBookCommand(bookToAdd);
 
-            var handler = new AddBookCommandHandler(_fakeDatabase);
             //ACT
-            var result = await handler.Handle(addBookCommand, CancellationToken.None);
+            var result = await _handler.Handle(addBookCommand, CancellationToken.None);
 
             //ASSERT
             Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count);  // Check if the book was added
-            Assert.AreEqual(id, result[0].Id);
-            Assert.AreEqual(bookName, result[0].Title);
-            Assert.AreEqual(author, result[0].Description);
+            Assert.AreEqual(1, result.Count);  // expext one added book
+            Assert.AreEqual(bookId, bookToAdd.Id);
+            Assert.AreEqual(bookName, bookToAdd.Title);
+            Assert.AreEqual(description, bookToAdd.Description);
         }
 
         [Test]
-        public async Task CreateBook_ShouldNotAddBook_WheneSameBookExists()
+        public async Task CreateBook_ShouldNotAddBook_WhenSameBookExists()
         {
-            var existingBook = new Book (1, "Author", "Book Title");
+            var bookId = Guid.NewGuid();
+            var existingBook = new Book (bookId, "Book Of Eli", "Description");
             _fakeDatabase.AllBooksFromDB.Add(existingBook);
             //Arrange
-            var bookShouldNotAdd = new Book(1, "Author", "Title");
-            var command = new AddBookCommand(bookShouldNotAdd);
+            var duplicateBookCommand = new AddBookCommand(existingBook);
 
-            var handler = new AddBookCommandHandler(_fakeDatabase);
-            
+
             //Act
-            var result = await handler.Handle(command, CancellationToken.None);
-
+            var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            {
+                await _handler.Handle(duplicateBookCommand, CancellationToken.None);
+            });
             //Assert
-            Assert.AreEqual(1, _fakeDatabase.AllBooksFromDB.Count);
-            Assert.AreEqual(existingBook, _fakeDatabase.AllBooksFromDB[0]);
-            Assert.True(result.Contains(existingBook));
+            Assert.AreEqual("A book With the same ID already exists!", ex.Message);
         }
     }
 }

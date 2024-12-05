@@ -14,6 +14,10 @@ namespace Application.Commands.Books.AddBook
 
         public Task<List<Book>> Handle(AddBookCommand request, CancellationToken cancellationToken)
         {
+            if (_fakeDatabase.AllBooksFromDB.Any(book => book.Id == request.NewBook.Id))
+            {
+                throw new InvalidOperationException("A book With the same ID already exists!");
+            }
             _fakeDatabase.AllBooksFromDB.Add(request.NewBook);
             return Task.FromResult(_fakeDatabase.AllBooksFromDB);
         }

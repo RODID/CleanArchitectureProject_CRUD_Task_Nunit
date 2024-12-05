@@ -23,12 +23,13 @@ namespace Test_CRUD.AuthorCQRS_Test
         [Test]
         public async Task DeleteAuthorCommandHandler_SholdRemoveAuthor_WheneAutorExists()
         {
-            var command = new DeleteAuthorCommand(1);
+            var authorId = Guid.NewGuid();
+            var command = new DeleteAuthorCommand(authorId);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            Assert.AreEqual(2, _fakeDatabase.AllAuthorsFromDB.Count);
-            Assert.IsFalse(_fakeDatabase.AllAuthorsFromDB.Any(a => a.Id == 1));
+            Assert.AreEqual(3, _fakeDatabase.AllAuthorsFromDB.Count);
+            Assert.IsFalse(_fakeDatabase.AllAuthorsFromDB.Any(a => a.Id == authorId));
 
         }
     }

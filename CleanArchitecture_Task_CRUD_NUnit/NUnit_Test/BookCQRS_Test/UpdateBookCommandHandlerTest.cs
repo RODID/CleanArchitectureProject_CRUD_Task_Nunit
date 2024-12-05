@@ -23,10 +23,11 @@ namespace Test_CRUD.BookCQRS_Test
         //Updating Title and description
         public async Task UpdateBookCommandHandler_ShouldUpdateBook_WheneValidInformationIsGiven()
         {
-            var existingBook = new Book(1, "Old Book Title", "Old Description");
+            var bookId = Guid.NewGuid();
+            var existingBook = new Book(bookId, "Old Book Title", "Old Description");
             _fakeDatabase.AllBooksFromDB.Add(existingBook);
 
-            var command = new UpdateBookCommand(1, "New Book Title", "New Description");
+            var command = new UpdateBookCommand(bookId, "New Book Title", "New Description");
             var handler = new UpdateBookCommandHandler(_fakeDatabase);
 
             var result = await handler.Handle(command, CancellationToken.None);
@@ -42,10 +43,11 @@ namespace Test_CRUD.BookCQRS_Test
         //Updating only Title 
         public async Task UpdateBookCommandHandler_ShouldUpdateOnlyBookName_WheneDescriptionIsUnchanged()
         {
-            var existingBook = new Book(1, "Old Book Name", "OriginalDescription");
+            var bookId = Guid.NewGuid();
+            var existingBook = new Book(bookId, "Old Book Name", "OriginalDescription");
             _fakeDatabase.AllBooksFromDB.Add(existingBook);
 
-            var command = new UpdateBookCommand(1, "Updated Book Name", existingBook.Description);
+            var command = new UpdateBookCommand(bookId, "Updated Book Name", existingBook.Description);
             var handler = new UpdateBookCommandHandler(_fakeDatabase);
 
             var result = await handler.Handle(command, CancellationToken.None);

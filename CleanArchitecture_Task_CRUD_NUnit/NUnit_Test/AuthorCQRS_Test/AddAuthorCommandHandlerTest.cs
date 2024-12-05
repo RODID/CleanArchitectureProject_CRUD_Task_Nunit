@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Domain;
 using Application.Commands.Authors.AddAuthor;
 using Infrastructure.Database;
+using System.Linq;
 
 namespace Test_CRUD.AuthorCQRS_Test
 {
@@ -19,32 +20,32 @@ namespace Test_CRUD.AuthorCQRS_Test
             _handler = new AddAuthorCommandHandler(_fakeDatabase);
         }
         [Test]
-        [TestCase(4, "Author Name")]
-        public async Task AddAuthorCommandHandler_ShouldAddAuthor_WheneValidDataIsProvided(int Id, string Name)
+        [TestCase("b74c1f5e-18d3-4657-9a62-2b8f8c5ea6df", "Author Name")]
+        public async Task AddAuthorCommandHandlear_ShouldAddAuthor_WheneValidDataIsProvided(string Id, string Name)
         {
-            var newAuthor = new Author(Id, Name);
-            var command = new AddAuthorCommand(newAuthor);
+            var command = new AddAuthorCommand(Name);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            Assert.AreEqual(4, result.Count);
-            Assert.IsTrue(result.Any(a => a.Id == Id && a.Name == Name));
-            
+            Assert.AreEqual(4, _fakeDatabase.AllAuthorsFromDB.Count);
+            Assert.IsTrue(_fakeDatabase.AllAuthorsFromDB.Any(a => a.Name == Name));
+            Assert.IsTrue(result.IsSuccess);
         }
+
 
         [Test]
         public async Task AddAuthor_ShouldNotAddAuthor_WhenInvalidDataIsProvided()
         {
-            var existingAuthor = new Author(1, "Arjan1");
-            var authorShouldNotAdd = new Author(1, "Arjan1");
+            var existingAuthor = new Author(Guid.NewGuid(), "Arjan1");
+            _fakeDatabase.AllAuthorsFromDB.Add(existingAuthor);
 
-            var command = new AddAuthorCommand(authorShouldNotAdd);
+            var command = new AddAuthorCommand ("Arjan1");
 
             var result = await  _handler.Handle(command, CancellationToken.None);
 
             Assert.AreEqual(4, _fakeDatabase.AllAuthorsFromDB.Count);
-            Assert.IsTrue(result.Contains(existingAuthor));
-            Assert.AreEqual("Rodi", result.First(a => a.Id == 1).Name);
+            Assert.IsFalse(result.IsSuccess);
+            Assert.AreEqual("Duplicate author detected.", result.ErrorMessage);
         }
     }
 }

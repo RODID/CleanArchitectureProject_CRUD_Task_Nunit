@@ -37,13 +37,13 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async void PostAuthor([FromBody] Author authorToAdd)
+        public async void PostAuthor([FromBody] string authorToAdd)
         {
             await _mediator.Send(new AddAuthorCommand(authorToAdd));
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Author>> PutAuthor(int id, [FromBody] UpdateAuthorCommand updateAuthorCommand)
+        public async Task<ActionResult<Author>> PutAuthor(Guid id, [FromBody] UpdateAuthorCommand updateAuthorCommand)
         {
             if (id!= updateAuthorCommand.AuthorId)
             {
@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteAuthor(int id)
+        public async Task<ActionResult> DeleteAuthor(Guid id)
         {
                 await _mediator.Send(new DeleteAuthorCommand(id));
                 return NoContent();
