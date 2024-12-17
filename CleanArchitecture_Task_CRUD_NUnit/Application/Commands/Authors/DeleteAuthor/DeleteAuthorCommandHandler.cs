@@ -1,38 +1,38 @@
-﻿using Domain;
+﻿using Application.Interface.RepositoryInterface;
+using Domain;
 using Domain.CommandOperationResult;
-using Infrastructure.Database;
 using MediatR;
 
 namespace Application.Commands.Authors.DeleteAuthor
 {
-    public class DeleteAuthorCommandHandler : IRequestHandler<DeleteAuthorCommand, OperationResult<List<Author>>>
+    public class DeleteAuthorCommandHandler : IRequestHandler<DeleteAuthorCommand, OperationResult<bool>>
     {
-        private readonly FakeDatabase _fakeDatabase;
-
-        public DeleteAuthorCommandHandler(FakeDatabase fakeDatabase)
+        private readonly IAuthorRepository _authorRepository;
+        public DeleteAuthorCommandHandler(IAuthorRepository authorRepository) 
         {
-            _fakeDatabase = fakeDatabase;
+            _authorRepository = authorRepository;
         }
 
-        public Task<OperationResult<List<Author>>> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<bool>> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var authorToRemove = _fakeDatabase.AllAuthorsFromDB.FirstOrDefault(a => a.Id == request.AuthorId);
+                var authorToRemove = await _authorRepository.GetAuthorByIdAsync(request.AuthorId);
                 if (authorToRemove == null)
                 {
-                    return Task.FromResult(OperationResult<List<Author>>.Failure("Auhtor not found", "failed to delete author"));
+                    return OperationResult<bool>.Failure("Author not found", "Failed to delete author");
                 }
 
-                _fakeDatabase.AllAuthorsFromDB.Remove(authorToRemove);
+                await _authorRepository.DeleteAuthorAsync(authorToRemove.Id);
 
-                return Task.FromResult(OperationResult<List<Author>>.Success(_fakeDatabase.AllAuthorsFromDB, "Author Successfully removed!"));
+                var allAuthors = await _authorRepository.GetAllAuthorAsync();
+
+                return OperationResult<bool>.Success(true, "Author successfully deleted!");
             }
             catch (Exception ex)
             {
-                return Task.FromResult(OperationResult<List<Author>>.Failure(ex.Message, "An error occurred when removing Author from list!"));
+                return OperationResult<bool>.Failure(ex.Message, "An error occured when removing author!");
             }
-           
         }
     }
 }

@@ -4,6 +4,7 @@ using Application.Commands.Books.UpdateBook;
 using Application.Queries.Books;
 using ClassLibrary;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -18,6 +19,7 @@ namespace WebAPI.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<Book>>> GetAllBooks()
         {
@@ -33,7 +35,7 @@ namespace WebAPI.Controllers
         }
 
         //[HttpGet("{bookId}")]
-        //public async Task<ActionResult<Book>> GetBookById(int bookId)
+        //public async Task<ActionResult<Book>> GetBookByIdAsync(int bookId)
         //{
         //    var query = new GetBookByIdQuery(bookId);
         //    var book = await _mediator.Send(query);
@@ -45,9 +47,24 @@ namespace WebAPI.Controllers
         //}
 
         [HttpPost]
-        public async void PostBook([FromBody] Book bookToAdd)
+        public async Task<ActionResult> PostBook([FromBody] Book bookToAdd)
         {
-            await _mediator.Send(new AddBookCommand(bookToAdd));
+            try
+            {
+                var command = new AddBookCommand(bookToAdd.Title, bookToAdd.Description);
+                var result = await _mediator.Send(command);
+
+                if (!result.IsSuccess)
+                {
+                    return BadRequest(result.ErrorMessage);
+                }
+
+                return CreatedAtAction(nameof(GetAllBooks), new { id = result.Data.Id }, result.Data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPut("{id}")]

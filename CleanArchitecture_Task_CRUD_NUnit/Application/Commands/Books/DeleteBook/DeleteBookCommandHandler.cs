@@ -1,41 +1,40 @@
-﻿using ClassLibrary;
-using MediatR;
-using Infrastructure.Database;
+﻿using MediatR;
 using Domain.CommandOperationResult;
+using Application.Interface.RepositoryInterface;
 
 namespace Application.Commands.Books.DeleteBook
 {
     public class DeleteBookCommandHandler : IRequestHandler<DeleteBookCommand,OperationResult<bool>>
     {
-        private readonly FakeDatabase _fakeDatabase;
+        private readonly IBookRepository _bookRepository;
 
-        public DeleteBookCommandHandler(FakeDatabase fakeDatabase)
+        public DeleteBookCommandHandler(IBookRepository bookRepository)
         {
-            _fakeDatabase = fakeDatabase;
+            _bookRepository = bookRepository;
         }
 
-        public Task<OperationResult<bool>> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
+
+        public async Task<OperationResult<bool>> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var bookToRemove = _fakeDatabase.AllBooksFromDB.FirstOrDefault(a => a.Id == request.BookId);
+                var bookToRemove = await _bookRepository.GetBookByIdAsync(request.BookId);
                 if (bookToRemove == null)
                 {
-                    return Task.FromResult(OperationResult<bool>.Failure("Book not found."));
+                    return OperationResult<bool>.Failure("Book not found", "Failed to delete book");
                 }
 
-                _fakeDatabase.AllBooksFromDB.Remove(bookToRemove);
+                await _bookRepository.GetBookByIdAsync(bookToRemove.Id);
 
-                return Task.FromResult(OperationResult<bool>.Success(true, "Book deleted successfully."));
+                var allBooks = await _bookRepository.GetAllBookAsync();
 
+                return OperationResult<bool>.Success(true, "Book successfully deleted!");
             }
             catch (Exception ex)
             {
-                return Task.FromResult(OperationResult<bool>.Failure($"An error occurred: {ex.Message}"));
+                return OperationResult<bool>.Failure(ex.Message, "An error occured when removing book!");
             }
 
-
         }
-
     }
 }

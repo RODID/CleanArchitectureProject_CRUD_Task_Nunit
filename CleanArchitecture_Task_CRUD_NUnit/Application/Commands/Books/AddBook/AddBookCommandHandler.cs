@@ -1,25 +1,41 @@
 ﻿using MediatR;
 using ClassLibrary;
-using Infrastructure.Database;
+using Domain.CommandOperationResult;
+using Application.Interface.RepositoryInterface;
 
 namespace Application.Commands.Books.AddBook
 {
-    public class AddBookCommandHandler : IRequestHandler<AddBookCommand, List<Book>>
+    public class AddBookCommandHandler : IRequestHandler<AddBookCommand, OperationResult<Book>>
     {
-        private readonly FakeDatabase _fakeDatabase;
-        public AddBookCommandHandler(FakeDatabase fakeDatabase)
+        private readonly IBookRepository _bookRepository;
+        public AddBookCommandHandler(IBookRepository bookRepository)
         {
-            _fakeDatabase = fakeDatabase;
+            _bookRepository = bookRepository;
         }
 
-        public Task<List<Book>> Handle(AddBookCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<Book>> Handle(AddBookCommand request, CancellationToken cancellationToken)
         {
-            if (_fakeDatabase.AllBooksFromDB.Any(book => book.Id == request.NewBook.Id))
+            try
             {
-                throw new InvalidOperationException("A book With the same ID already exists!");
+                if (string.IsNullOrWhiteSpace(request.Title))
+                {
+                    return OperationResult<Book>.Failure("Book title is required.");
+                }
+
+                var newBook = new Book
+                {
+                    Id = Guid.NewGuid(),
+                    Title = request.Title,
+                    Description = request.Description,
+                };
+                var addedBook = await _bookRepository.AddBookAsync(newBook);
+
+                return OperationResult<Book>.Success(addedBook, "Book added Successfully!");
             }
-            _fakeDatabase.AllBooksFromDB.Add(request.NewBook);
-            return Task.FromResult(_fakeDatabase.AllBooksFromDB);
+            catch (Exception ex)
+            {
+                return OperationResult<Book>.Failure($"An error occurred while adding the book: ", ex.Message);
+            }
         }
     }
 }

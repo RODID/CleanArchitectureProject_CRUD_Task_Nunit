@@ -1,30 +1,43 @@
-﻿using ClassLibrary;
-using Infrastructure.Database;
+﻿using Application.Interface.RepositoryInterface;
+using ClassLibrary;
+using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Commands.Books.UpdateBook
 {
-    public class UpdateBookCommandHandler : IRequestHandler<UpdateBookCommand, Book>
+    public class UpdateBookCommandHandler : IRequestHandler<UpdateBookCommand, OperationResult<Book>>
     {
-        private readonly FakeDatabase _fakeDatabase;
+        private readonly IBookRepository _bookRepository;
 
-        public UpdateBookCommandHandler(FakeDatabase fakeDatabase)
+        public UpdateBookCommandHandler(IBookRepository bookRepository)
         {
-            _fakeDatabase = fakeDatabase;
+            _bookRepository = bookRepository;
         }
 
-        public Task<Book> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<Book>> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
-            var bookToUpdate = _fakeDatabase.AllBooksFromDB.FirstOrDefault(a => a.Id == request.BookId);
-            if (bookToUpdate == null)
+            try
             {
-                throw new KeyNotFoundException($"Book with ID {request.BookId} wasn't found.");
+                var bookToUpdate = await _bookRepository.GetBookByIdAsync(request.BookId);
+                if (bookToUpdate == null)
+                {
+                    return OperationResult<Book>.Failure(
+                        $"Book with ID {request.BookId} wasn't found.",
+                        "Update operation failed"
+                    );
+                }
+
+                await _bookRepository.UpdateBookAsync(bookToUpdate.Id, bookToUpdate);
+
+                return OperationResult<Book>.Success(
+                    bookToUpdate,
+                    "Book updated successfully"
+                );
             }
-
-            bookToUpdate.Title = request.NewTitle;
-            bookToUpdate.Description = request.NewDescription;
-
-            return Task.FromResult(bookToUpdate);
+            catch (Exception ex)
+            {
+                return OperationResult<Book>.Failure($"An error occurred: {ex.Message}");
+            }
         }
     }
 }

@@ -1,16 +1,20 @@
 ﻿using ClassLibrary;
+using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Commands.Books.AddBook
 {
-    public class AddBookCommand : IRequest<List<Book>>
+    public class AddBookCommand : IRequest<OperationResult<Book>>
     {
-
-        public AddBookCommand(Book bookToAdd)
+        public AddBookCommand(string title, string description)
         {
-            NewBook = bookToAdd;
+            Title = title;
+            Description = description;
         }
-        public Book NewBook { get; }
+
+        public string Title { get; set; }
+        public string Description { get; set; }
+
 
     }
 }

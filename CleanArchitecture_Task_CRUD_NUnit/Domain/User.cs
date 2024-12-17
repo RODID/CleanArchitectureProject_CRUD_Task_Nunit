@@ -1,4 +1,6 @@
-﻿namespace Domain
+﻿using System.Collections.Generic;
+
+namespace Domain
 {
     public class User
     {
@@ -9,8 +11,15 @@
             Password = password;
         }
 
+        public User()
+        {
+
+        }
+
         public Guid Id { get; set; }
-        public string UserName { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        public string UserName { get; set; }
+        public string Password { get; set; }
+        public ICollection<User> Users { get; set; } = new List<User>();
+
     }
 }

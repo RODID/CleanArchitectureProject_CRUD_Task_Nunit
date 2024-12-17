@@ -1,9 +1,10 @@
 ﻿using ClassLibrary;
+using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Commands.Books.UpdateBook
 {
-    public class UpdateBookCommand : IRequest<Book>
+    public class UpdateBookCommand : IRequest<OperationResult<Book>>
     {
         public Guid BookId { get; }
         public string NewTitle { get; }
