@@ -1,9 +1,10 @@
 ﻿using Domain;
+using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Queries.Auhtors
 {
-    public class GetAllAuthorsQuery : IRequest<List<Author>>
+    public class GetAllAuthorsQuery : IRequest<OperationResult<List<Author>>>
     {
 
     }

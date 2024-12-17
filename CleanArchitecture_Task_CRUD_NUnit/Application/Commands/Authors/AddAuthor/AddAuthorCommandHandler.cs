@@ -1,40 +1,41 @@
-﻿using Domain;
+﻿using Application.Interface.RepositoryInterface;
+using Domain;
 using Domain.CommandOperationResult;
-using Infrastructure.Database;
 using MediatR;
 
 namespace Application.Commands.Authors.AddAuthor
 {
     public class AddAuthorCommandHandler : IRequestHandler<AddAuthorCommand, OperationResult<bool>>
     {
-        private readonly FakeDatabase _fakeDatabase;
-
-        public AddAuthorCommandHandler(FakeDatabase fakeDatabase)
+        private readonly IAuthorRepository _authorRepository;
+        public AddAuthorCommandHandler(IAuthorRepository authorRepository)
         {
-            _fakeDatabase = fakeDatabase; ;
+            _authorRepository = authorRepository;
         }
 
-        public Task<OperationResult<bool>> Handle(AddAuthorCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<bool>> Handle(AddAuthorCommand request, CancellationToken cancellationToken)
         {
             try
             {
-               if (string.IsNullOrWhiteSpace(request.Name))
-               {
-                 return Task.FromResult(OperationResult<bool>.Failure("Auhtor name is invalid."));
-               }
-
-                if (_fakeDatabase.AllAuthorsFromDB.Any(a => a.Name == request.Name))
+                if (string.IsNullOrWhiteSpace(request.Name))
                 {
-                    return Task.FromResult(OperationResult<bool>.Failure("Duplicate author detected."));
+                    return OperationResult<bool>.Failure("Author Name Is Innvalid");
                 }
 
-               _fakeDatabase.AllAuthorsFromDB.Add(new Author(Guid.NewGuid(), request.Name));
+                var existingAuthors = await _authorRepository.GetAllAuthorAsync();
+                if (existingAuthors.Any(a => a.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return OperationResult<bool>.Failure("Duplicate author detected.");
+                }
 
-                return Task.FromResult(OperationResult<bool>.Success(true));
+                var newAuthor = new Author(Guid.NewGuid(), request.Name);
+                await _authorRepository.AddAuthorAsync(newAuthor);
+
+                return OperationResult<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return Task.FromResult(OperationResult<bool>.Failure("An Error Occured"));
+                return OperationResult<bool>.Failure("An error occurred: ", ex.Message);
             }
         }
     }

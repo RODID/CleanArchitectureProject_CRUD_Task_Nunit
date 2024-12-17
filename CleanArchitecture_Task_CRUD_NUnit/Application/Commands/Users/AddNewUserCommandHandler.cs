@@ -1,20 +1,45 @@
 ﻿using MediatR;
 using Domain;
-using Infrastructure.Database;
+using Domain.CommandOperationResult;
+using Application.Interface.RepositoryInterface;
 
 namespace Application.Commands.Users
 {
-    internal sealed class AddNewUserCommandHandler : IRequestHandler<AddNewUserCommand, User>
+    internal sealed class AddNewUserCommandHandler : IRequestHandler<AddNewUserCommand, OperationResult<User>>
     {
-        private readonly FakeDatabase _fakeDatabase;
-        public AddNewUserCommandHandler(FakeDatabase fakeDatabase) 
+        private readonly IUserRepository _userRepository;
+
+        public AddNewUserCommandHandler(IUserRepository userRepository)
         {
-            _fakeDatabase = fakeDatabase;
+            _userRepository = userRepository;
         }
 
-        public Task<User> Handle(AddNewUserCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<User>> Handle(AddNewUserCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password))
+                {
+                    return OperationResult<User>.Failure("Invalid user data.");
+                }
+
+                var newUser = new User
+                {
+                    Id = Guid.NewGuid(),
+                    UserName = request.UserName,
+                    Password = request.Password
+                };
+
+                var addedUser = await _userRepository.AddUserAsync(newUser);
+
+                return OperationResult<User>.Success(addedUser, "User Successfully added.");
+
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<User>.Failure($"An error occured: {ex.Message}");
+            }
+           
         }
     }
 }

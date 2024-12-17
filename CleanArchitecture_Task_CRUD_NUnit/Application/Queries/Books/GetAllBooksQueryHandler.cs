@@ -1,21 +1,32 @@
-﻿using ClassLibrary;
-using Infrastructure.Database;
+﻿using Application.Interface.RepositoryInterface;
+using ClassLibrary;
+using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Queries.Books
 {
-    public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQuery, List<Book>>
+    public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQuery, OperationResult<List<Book>>>
     {
-        private readonly FakeDatabase _fakeDatabase;
-        public GetAllBooksQueryHandler(FakeDatabase fakeDatabase) 
+        private readonly IBookRepository _bookRepository;
+        public GetAllBooksQueryHandler(IBookRepository bookRepository)
         {
-            _fakeDatabase = fakeDatabase;
+            _bookRepository = bookRepository;
         }
-
-        public Task<List<Book>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<List<Book>>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_fakeDatabase.AllBooksFromDB);
-          
+            try
+            {
+                var books = await _bookRepository.GetAllBookAsync();
+                if (books == null || books.Count == 0)
+                {
+                    return OperationResult<List<Book>>.Failure("No books found!");
+                }
+                return OperationResult<List<Book>>.Success(books);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<Book>>.Failure("An error occured, try again!");
+            }
         }
     }
 }

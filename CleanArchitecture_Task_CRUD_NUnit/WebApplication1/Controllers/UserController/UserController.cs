@@ -2,6 +2,7 @@
 using Application.Dtos;
 using Application.Queries.Auhtors;
 using Application.Queries.Login;
+using Application.Queries.Users;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,9 +10,9 @@ namespace WebAPI.Controllers.UserController
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : Controller
+    public class UserController : ControllerBase
     {
-        internal readonly IMediator _mediator;
+        private readonly IMediator _mediator;
 
         public UserController(IMediator mediator)
         {
@@ -21,14 +22,16 @@ namespace WebAPI.Controllers.UserController
         [Route("getAllUsers")]
         public async Task <IActionResult> GetAllUsers()
         {
-            return Ok(await _mediator.Send(new GetAllAuthorsQuery()));
+            return Ok(await _mediator.Send(new GetAllUserQuery()));
         }
 
         [HttpPost]
         [Route("Regiter")]
         public async Task<IActionResult> RegisterUser([FromBody] UserDTO newUser)
         {
-            return Ok(await _mediator.Send(new AddNewUserCommand(newUser)));
+            var command = new AddNewUserCommand(newUser);
+            return Ok(await _mediator.Send(command));
+
         }
 
         [HttpPost]

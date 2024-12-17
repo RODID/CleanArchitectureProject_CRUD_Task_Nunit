@@ -4,7 +4,7 @@ using Domain.CommandOperationResult;
 
 namespace Application.Commands.Authors.DeleteAuthor
 {
-    public class DeleteAuthorCommand : IRequest<OperationResult<List<Author>>>
+    public class DeleteAuthorCommand : IRequest<OperationResult<bool>>
     {
         public Guid AuthorId { get; }
 
@@ -12,7 +12,5 @@ namespace Application.Commands.Authors.DeleteAuthor
         {
             AuthorId = Guid.NewGuid();
         }
-
-
     }
 }

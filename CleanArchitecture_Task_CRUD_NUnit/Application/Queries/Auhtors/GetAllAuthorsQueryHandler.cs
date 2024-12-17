@@ -1,26 +1,33 @@
-﻿using Domain;
-using Infrastructure.Database;
+﻿using Application.Interface.RepositoryInterface;
+using Domain;
+using Domain.CommandOperationResult;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Queries.Auhtors
 {
-    public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, List<Author>>
+    public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, OperationResult<List<Author>>>
     {
-        private readonly FakeDatabase _fakeDatabase;
-
-        public GetAllAuthorsQueryHandler(FakeDatabase fakeDatabase)
+        private readonly IAuthorRepository _authorRepository;
+        public GetAllAuthorsQueryHandler(IAuthorRepository authorRepository) 
         {
-            _fakeDatabase = fakeDatabase;
+            _authorRepository = authorRepository;
         }
 
-        public Task<List<Author>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<List<Author>>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_fakeDatabase.AllAuthorsFromDB);
+            try
+            {
+                var authors = await _authorRepository.GetAllAuthorAsync();
+                if (authors == null || authors.Count == 0)
+                {
+                    return OperationResult<List<Author>>.Failure("No author found!");
+                }
+                return OperationResult<List<Author>>.Success(authors);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<Author>>.Failure("An error occured, try again!");
+            }
         }
     }
 }
