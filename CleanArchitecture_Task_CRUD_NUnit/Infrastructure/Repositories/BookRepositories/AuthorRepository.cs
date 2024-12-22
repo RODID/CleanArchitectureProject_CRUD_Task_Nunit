@@ -1,6 +1,7 @@
 ﻿using Application.Interface.RepositoryInterface;
 using Domain;
 using Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.BookRepositories
 {
@@ -26,14 +27,14 @@ namespace Infrastructure.Repositories.BookRepositories
             throw new NotImplementedException();
         }
 
-        public Task<List<Author>> GetAllAuthorAsync()
+        public async Task<List<Author>> GetAllAuthorAsync()
         {
-            throw new NotImplementedException();
+            return await _realdatabase.Authors.ToListAsync();
         }
 
-        public Task<Author> GetAuthorByIdAsync(Guid id)
+        public async Task<Author> GetAuthorByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await _realdatabase.Authors.FindAsync();
         }
 
         public Task<Author> UpdateAuthorAsync(Guid id, Author author)

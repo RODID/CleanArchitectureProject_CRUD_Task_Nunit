@@ -1,8 +1,12 @@
+using Application.Interface.RepositoryInterface;
 using Application.Queries.Auhtors;
 using Application.Queries.Login.Helpers;
 using ClassLibrary;
 using Infrastructure;
+using Infrastructure.Database;
+using Infrastructure.Repositories.BookRepositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -48,32 +52,7 @@ namespace WebAPI
                 });
             });
 
-            builder.Services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo {  Title = "Arjan Arjan", Version ="v1"});
-
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Description = "Authorize with your bearer token that generates when you login",
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer"
-                });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
-            });
+            
 
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
             builder.Services.AddControllers();
@@ -81,7 +60,6 @@ namespace WebAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddSingleton(new List<Book>());
             builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("DefaultConnection")!);
             
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
@@ -89,7 +67,16 @@ namespace WebAPI
                 typeof(GetAllAuthorsQuery).Assembly
             ));
 
-            builder.Services.AddSingleton<TokenHelper>();
+            builder.Services.AddDbContext<RealDatabase>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            builder.Services.AddScoped<TokenHelper>();
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IBookRepository, BookRepository>();
+            builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 
             var app = builder.Build();
 
