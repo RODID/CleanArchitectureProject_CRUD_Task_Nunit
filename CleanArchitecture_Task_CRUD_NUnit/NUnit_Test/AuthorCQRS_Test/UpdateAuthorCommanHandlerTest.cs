@@ -48,16 +48,16 @@
 //            Assert.IsNotNull(result, "Result should not be null.");
 //            Assert.IsTrue(result.IsSuccess, "Result should indicate success.");
 //            Assert.IsNotNull(result.Data, "Result should contain data.");
-//            Assert.AreEqual(updatedName, result.Data.Name, "Author's name should be updated.");
+//            Assert.AreEqual(updatedName, result.Data.AuthorName, "Author's name should be updated.");
 //            Assert.AreEqual(authorToUpdate.Id, result.Data.Id, "Author's ID should remain the same.");
 
 //            // Verify only the updated author's name is changed
 //            var updatedAuthor = _fakeDatabase.AllAuthorsFromDB.First(a => a.Id == authorToUpdate.Id);
-//            Assert.AreEqual(updatedName, updatedAuthor.Name, "Database should have the updated author's name.");
+//            Assert.AreEqual(updatedName, updatedAuthor.AuthorName, "Database should have the updated author's name.");
 
 //            // Ensure other authors are unchanged
-//            Assert.AreEqual("Arjan1", _fakeDatabase.AllAuthorsFromDB[0].Name, "First author's name should remain unchanged.");
-//            Assert.AreEqual("Arjan3", _fakeDatabase.AllAuthorsFromDB[2].Name, "Third author's name should remain unchanged.");
+//            Assert.AreEqual("Arjan1", _fakeDatabase.AllAuthorsFromDB[0].AuthorName, "First author's name should remain unchanged.");
+//            Assert.AreEqual("Arjan3", _fakeDatabase.AllAuthorsFromDB[2].AuthorName, "Third author's name should remain unchanged.");
 //        }
 
 //        [Test]

@@ -14,18 +14,18 @@ namespace Application.Queries.Login
             _tokenHelper = tokenHelper;
         }
 
-        public Task<string> Handle(LoginUserQuery request, CancellationToken cancellationToken)
+        public async Task<string> Handle(LoginUserQuery request, CancellationToken cancellationToken)
         {
-            var user = _userRepository.GetUserByCredentialsAsync(request.LoginUser.UserName, request.LoginUser.Password);
+            var user = await _userRepository.GetUserByCredentialsAsync(request.LoginUser.UserName, request.LoginUser.Password);
 
             if (user == null)
             {
                 throw new UnauthorizedAccessException("Invalid username or passwor");
             }
 
-            string token = "TOKEN TO RETURN";
+            string token = _tokenHelper.GenerateJwtToken(user);
 
-            return Task.FromResult(token);
+            return token;
         }
     }
 }   

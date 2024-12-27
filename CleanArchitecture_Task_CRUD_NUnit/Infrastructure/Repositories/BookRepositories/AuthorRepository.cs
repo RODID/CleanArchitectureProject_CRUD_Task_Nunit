@@ -1,5 +1,6 @@
 ﻿using Application.Interface.RepositoryInterface;
 using Domain;
+using Domain.CommandOperationResult;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,9 +23,19 @@ namespace Infrastructure.Repositories.BookRepositories
             return Task.FromResult(author);
         }
 
-        public Task<string> DeleteAuthorAsync(Guid id)
+        public async Task<OperationResult<bool>> DeleteAuthorAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var authorToDelete = await _realdatabase.Authors.FindAsync(id);
+
+            if (authorToDelete == null)
+            {
+                return OperationResult<bool>.Failure("Author not found", "Failed to delete author");
+            }
+
+            _realdatabase.Authors.Remove(authorToDelete);
+            await _realdatabase.SaveChangesAsync();
+
+            return OperationResult<bool>.Success(true, "Author successfully deleted");
         }
 
         public async Task<List<Author>> GetAllAuthorAsync()

@@ -11,30 +11,41 @@ namespace Application.Queries.Login.Helpers
     {
         private readonly IConfiguration _configuration;
 
+        private readonly string _secretKey;
+        private readonly int _tokenExpirationMinutes;
+
         public TokenHelper(IConfiguration configuration) 
         {
-            _configuration = configuration;
+            var jwtSettings = configuration.GetSection("JwtSettings");
+            _secretKey = jwtSettings["SecretKey"];
+            _tokenExpirationMinutes = int.Parse(jwtSettings["TokenexpirationMinutes"]);
         }
 
         public string GenerateJwtToken (User user)
         {
-            var key = Encoding.ASCII.GetBytes(s: _configuration["JwtSettings:SecurityKey"]!);
+            // Define claims
+            var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.UserName),
+        };
 
+            // Create signing credentials
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            // Create the token
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, "Admin")
-                }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(_tokenExpirationMinutes),
+                SigningCredentials = credentials
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
+            // Return the token string
             return tokenHandler.WriteToken(token);
         }
 

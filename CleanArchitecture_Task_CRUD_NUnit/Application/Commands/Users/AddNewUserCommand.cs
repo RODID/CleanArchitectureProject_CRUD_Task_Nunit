@@ -7,10 +7,10 @@ namespace Application.Commands.Users
 {
     public class AddNewUserCommand : IRequest<OperationResult<User>>
     {
-        public AddNewUserCommand(UserDTO user)
+        public AddNewUserCommand(UserDTO newName)
         {
-            UserName = user.UserName;
-            Password = user.Password;
+            UserName = newName.UserName;
+            Password = newName.Password;
         }
 
         public UserDTO NewUser { get; }

@@ -4,6 +4,7 @@ using Application.Commands.Authors.DeleteAuthor;
 using Application.Commands.Authors.UpdateAuthor;
 using Application.Queries.Auhtors;
 using Domain;
+using Domain.CommandOperationResult;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,9 +38,17 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async void PostAuthor([FromBody] string authorToAdd)
+        public async Task<ActionResult> PostAuthor([FromBody] string authorToAdd)
         {
-            await _mediator.Send(new AddAuthorCommand(authorToAdd));
+            try
+            {
+                await _mediator.Send(new AddAuthorCommand(authorToAdd));
+                return Ok("Author added successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
@@ -62,10 +71,23 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteAuthor(Guid id)
+        public async Task<ActionResult> DeleteAuthorAsync(Guid id)
         {
-                await _mediator.Send(new DeleteAuthorCommand(id));
-                return NoContent();
+            try
+            {
+                var result = await _mediator.Send(new DeleteAuthorCommand(id));
+
+                if (result.IsSuccess)
+                {
+                    return NoContent(); 
+                }
+
+                return NotFound(result.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
