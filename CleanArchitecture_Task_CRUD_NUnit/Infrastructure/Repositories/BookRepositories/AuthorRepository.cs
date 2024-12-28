@@ -23,19 +23,19 @@ namespace Infrastructure.Repositories.BookRepositories
             return Task.FromResult(author);
         }
 
-        public async Task<OperationResult<bool>> DeleteAuthorAsync(Guid id)
+        public async Task<string> DeleteAuthorAsync(Guid id)
         {
             var authorToDelete = await _realdatabase.Authors.FindAsync(id);
 
             if (authorToDelete == null)
             {
-                return OperationResult<bool>.Failure("Author not found", "Failed to delete author");
+                return "Author not found";
             }
 
             _realdatabase.Authors.Remove(authorToDelete);
             await _realdatabase.SaveChangesAsync();
 
-            return OperationResult<bool>.Success(true, "Author successfully deleted");
+            return "Author successfully deleted";
         }
 
         public async Task<List<Author>> GetAllAuthorAsync()
@@ -45,7 +45,7 @@ namespace Infrastructure.Repositories.BookRepositories
 
         public async Task<Author> GetAuthorByIdAsync(Guid id)
         {
-            return await _realdatabase.Authors.FindAsync();
+            return await _realdatabase.Authors.FindAsync(id);
         }
 
         public Task<Author> UpdateAuthorAsync(Guid id, Author author)

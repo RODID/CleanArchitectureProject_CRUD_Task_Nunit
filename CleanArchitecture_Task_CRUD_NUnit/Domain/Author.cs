@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Domain
 {
@@ -9,7 +9,8 @@ namespace Domain
             Id = id;
             Name = name;
         }
-        public Guid Id { get; set; } 
+        
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
         public List<Author> Authors { get; set; } = new List<Author>();
     }

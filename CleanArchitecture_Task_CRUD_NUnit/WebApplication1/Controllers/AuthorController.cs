@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Author>> PutAuthor(Guid id, [FromBody] UpdateAuthorCommand updateAuthorCommand)
+        public async Task<ActionResult<Author>> UpdateAuthor(Guid id, [FromBody] UpdateAuthorCommand updateAuthorCommand)
         {
             if (id!= updateAuthorCommand.AuthorId)
             {
@@ -71,6 +71,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<ActionResult> DeleteAuthorAsync(Guid id)
         {
             try

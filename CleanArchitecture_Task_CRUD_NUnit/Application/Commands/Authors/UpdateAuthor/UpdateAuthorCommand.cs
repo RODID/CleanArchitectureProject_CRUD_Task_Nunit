@@ -9,10 +9,15 @@ namespace Application.Commands.Authors.UpdateAuthor
         public Guid AuthorId { get; }
         public string NewName { get; }
 
-        public UpdateAuthorCommand(Guid authorId, string authorName)
+        public UpdateAuthorCommand(Guid authorId, string newName)
         {
             AuthorId = authorId;
-            NewName = authorName;
+            NewName = newName;
+        }
+
+        public UpdateAuthorCommand()
+        {
+
         }
     }
 }

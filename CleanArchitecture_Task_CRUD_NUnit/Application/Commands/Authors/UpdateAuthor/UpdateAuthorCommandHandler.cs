@@ -26,6 +26,7 @@ namespace Application.Commands.Authors.UpdateAuthor
                     );
                 }
 
+                authorToUpdate.Name = request.NewName;
                 await _authorRepository.UpdateAuthorAsync(authorToUpdate.Id, authorToUpdate);
 
                 return OperationResult<Author>.Success(
@@ -35,7 +36,7 @@ namespace Application.Commands.Authors.UpdateAuthor
             }
             catch (Exception ex)
             {
-                return OperationResult<Author>.Failure($"An error occurred: {ex.Message}");
+                return OperationResult<Author>.Failure($"An error occurred: {ex.Message} - {ex.StackTrace}");
             }
         
         }
