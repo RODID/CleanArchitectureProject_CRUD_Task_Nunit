@@ -17,6 +17,11 @@ namespace Infrastructure.Repositories.BookRepositories
 
         public async Task<Book> AddBookAsync(Book book)
         {
+            if (book.Id == Guid.Empty)
+            {
+                book.Id = Guid.NewGuid();
+            }
+
             _realDatabase.Books.Add(book);
             await _realDatabase.SaveChangesAsync();
             return book;

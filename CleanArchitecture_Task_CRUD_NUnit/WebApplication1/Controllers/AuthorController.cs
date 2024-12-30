@@ -1,13 +1,12 @@
-﻿using Application.Commands.Authors;
-using Application.Commands.Authors.AddAuthor;
+﻿using Application.Commands.Authors.AddAuthor;
 using Application.Commands.Authors.DeleteAuthor;
 using Application.Commands.Authors.UpdateAuthor;
 using Application.Queries.Auhtors;
 using Domain;
-using Domain.CommandOperationResult;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace WebAPI.Controllers
 {
@@ -54,14 +53,18 @@ namespace WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Author>> UpdateAuthor(Guid id, [FromBody] UpdateAuthorCommand updateAuthorCommand)
         {
-            if (id!= updateAuthorCommand.AuthorId)
-            {
-                return BadRequest("The Author ID in the URL and the body dosent match.");
-            }
             try
             {
-                var updateAuthor = await _mediator.Send(updateAuthorCommand);
+                if (id != updateAuthorCommand.AuthorId)
+                {
+                    return BadRequest("The Author ID in the URL and the body doesn't match.");
+                }
 
+                // Log received data
+                Console.WriteLine($"Received ID: {id}");
+                Console.WriteLine($"Received Body: {JsonConvert.SerializeObject(updateAuthorCommand)}");
+
+                var updateAuthor = await _mediator.Send(updateAuthorCommand);
                 return Ok(updateAuthor);
             }
             catch (Exception ex)

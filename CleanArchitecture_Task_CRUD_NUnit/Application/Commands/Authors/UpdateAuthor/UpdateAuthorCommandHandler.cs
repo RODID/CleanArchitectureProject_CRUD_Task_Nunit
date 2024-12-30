@@ -27,10 +27,10 @@ namespace Application.Commands.Authors.UpdateAuthor
                 }
 
                 authorToUpdate.Name = request.NewName;
-                await _authorRepository.UpdateAuthorAsync(authorToUpdate.Id, authorToUpdate);
+                var updatedAuthor = await _authorRepository.UpdateAuthorAsync(authorToUpdate.Id, authorToUpdate);
 
                 return OperationResult<Author>.Success(
-                    authorToUpdate,
+                    updatedAuthor,
                     "Author updated successfully"
                 );
             }

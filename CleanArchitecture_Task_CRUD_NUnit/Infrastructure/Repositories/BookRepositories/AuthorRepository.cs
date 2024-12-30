@@ -48,9 +48,20 @@ namespace Infrastructure.Repositories.BookRepositories
             return await _realdatabase.Authors.FindAsync(id);
         }
 
-        public Task<Author> UpdateAuthorAsync(Guid id, Author author)
+        public async Task<Author> UpdateAuthorAsync(Guid id, Author author)
         {
-            throw new NotImplementedException();
+            var existingAuthor = await _realdatabase.Authors.FindAsync(id);
+
+            if(existingAuthor == null)
+            {
+                throw new KeyNotFoundException($"Author with ID {id} not found!");
+            }
+
+            existingAuthor.Name = author.Name;
+            _realdatabase.Authors.Update(existingAuthor);
+            await _realdatabase.SaveChangesAsync();
+
+            return existingAuthor;
         }
     }
 }
