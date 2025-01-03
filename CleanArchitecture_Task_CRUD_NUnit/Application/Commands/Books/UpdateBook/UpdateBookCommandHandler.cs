@@ -27,6 +27,9 @@ namespace Application.Commands.Books.UpdateBook
                     );
                 }
 
+                bookToUpdate.Title = request.NewTitle;
+                bookToUpdate.Description = request.NewDescription;
+
                 await _bookRepository.UpdateBookAsync(bookToUpdate.Id, bookToUpdate);
 
                 return OperationResult<Book>.Success(

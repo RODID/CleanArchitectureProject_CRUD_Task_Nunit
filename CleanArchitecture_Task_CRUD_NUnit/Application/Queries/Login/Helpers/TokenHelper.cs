@@ -23,18 +23,15 @@ namespace Application.Queries.Login.Helpers
 
         public string GenerateJwtToken (User user)
         {
-            // Define claims
             var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.UserName),
         };
 
-            // Create signing credentials
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            // Create the token
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -45,7 +42,6 @@ namespace Application.Queries.Login.Helpers
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            // Return the token string
             return tokenHandler.WriteToken(token);
         }
 

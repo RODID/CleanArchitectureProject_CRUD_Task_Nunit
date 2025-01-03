@@ -1,16 +1,13 @@
 using Application.Interface.RepositoryInterface;
 using Application.Queries.Auhtors;
 using Application.Queries.Login.Helpers;
-using ClassLibrary;
 using Infrastructure;
 using Infrastructure.Database;
 using Infrastructure.Repositories.BookRepositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 using System.Text;
 
 namespace WebAPI

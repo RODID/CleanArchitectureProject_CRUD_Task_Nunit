@@ -24,9 +24,8 @@ namespace Application.Commands.Books.DeleteBook
                     return OperationResult<bool>.Failure("Book not found", "Failed to delete book");
                 }
 
-                await _bookRepository.GetBookByIdAsync(bookToRemove.Id);
 
-                var allBooks = await _bookRepository.GetAllBookAsync();
+                var allBooks = await _bookRepository.DeleteBookByIdAsync(bookToRemove.Id);
 
                 return OperationResult<bool>.Success(true, "Book successfully deleted!");
             }
