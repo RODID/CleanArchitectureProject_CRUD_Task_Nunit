@@ -19,15 +19,15 @@
 //            _handler = new AddAuthorCommandHandler(_fakeDatabase);
 //        }
 //        [Test]
-//        [TestCase("b74c1f5e-18d3-4657-9a62-2b8f8c5ea6df", "Author Name")]
-//        public async Task AddAuthorCommandHandlear_ShouldAddAuthor_WheneValidDataIsProvided(string Id, string Name)
+//        [TestCase("b74c1f5e-18d3-4657-9a62-2b8f8c5ea6df", "Author AuthorName")]
+//        public async Task AddAuthorCommandHandlear_ShouldAddAuthor_WheneValidDataIsProvided(string Id, string AuthorName)
 //        {
-//            var command = new AddAuthorCommand(Name);
+//            var command = new AddAuthorCommand(AuthorName);
 
 //            var result = await _handler.Handle(command, CancellationToken.None);
 
 //            Assert.AreEqual(4, _fakeDatabase.AllAuthorsFromDB.Count);
-//            Assert.IsTrue(_fakeDatabase.AllAuthorsFromDB.Any(a => a.Name == Name));
+//            Assert.IsTrue(_fakeDatabase.AllAuthorsFromDB.Any(a => a.AuthorName == AuthorName));
 //            Assert.IsTrue(result.IsSuccess);
 //        }
 

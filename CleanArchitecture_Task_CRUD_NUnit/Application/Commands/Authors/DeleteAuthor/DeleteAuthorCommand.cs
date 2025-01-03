@@ -10,7 +10,7 @@ namespace Application.Commands.Authors.DeleteAuthor
 
         public DeleteAuthorCommand(Guid authorId)
         {
-            AuthorId = Guid.NewGuid();
+            AuthorId = authorId;
         }
     }
 }

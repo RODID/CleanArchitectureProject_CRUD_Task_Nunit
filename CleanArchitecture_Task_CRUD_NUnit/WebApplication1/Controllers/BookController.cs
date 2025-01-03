@@ -1,6 +1,7 @@
 ﻿using Application.Commands.Books.AddBook;
 using Application.Commands.Books.DeleteBook;
 using Application.Commands.Books.UpdateBook;
+using Application.Dtos;
 using Application.Queries.Books;
 using ClassLibrary;
 using MediatR;
@@ -19,7 +20,6 @@ namespace WebAPI.Controllers
             _mediator = mediator;
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<Book>>> GetAllBooks()
         {
@@ -34,20 +34,8 @@ namespace WebAPI.Controllers
             }
         }
 
-        //[HttpGet("{bookId}")]
-        //public async Task<ActionResult<Book>> GetBookByIdAsync(int bookId)
-        //{
-        //    var query = new GetBookByIdQuery(bookId);
-        //    var book = await _mediator.Send(query);
-        //    if (book == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Ok(book);
-        //}
-
         [HttpPost]
-        public async Task<ActionResult> PostBook([FromBody] Book bookToAdd)
+        public async Task<ActionResult> PostBook([FromBody] AddBookDTO bookToAdd)
         {
             try
             {

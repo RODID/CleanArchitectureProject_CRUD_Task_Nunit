@@ -26,16 +26,17 @@ namespace Application.Commands.Authors.UpdateAuthor
                     );
                 }
 
-                await _authorRepository.UpdateAuthorAsync(authorToUpdate.Id, authorToUpdate);
+                authorToUpdate.Name = request.NewName;
+                var updatedAuthor = await _authorRepository.UpdateAuthorAsync(authorToUpdate.Id, authorToUpdate);
 
                 return OperationResult<Author>.Success(
-                    authorToUpdate,
+                    updatedAuthor,
                     "Author updated successfully"
                 );
             }
             catch (Exception ex)
             {
-                return OperationResult<Author>.Failure($"An error occurred: {ex.Message}");
+                return OperationResult<Author>.Failure($"An error occurred: {ex.Message} - {ex.StackTrace}");
             }
         
         }

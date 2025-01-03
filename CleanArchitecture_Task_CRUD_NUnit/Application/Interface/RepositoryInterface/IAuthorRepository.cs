@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Domain.CommandOperationResult;
 
 namespace Application.Interface.RepositoryInterface
 {
@@ -6,7 +7,7 @@ namespace Application.Interface.RepositoryInterface
     {
         Task<Author> AddAuthorAsync(Author author);
         Task<Author> UpdateAuthorAsync(Guid id, Author author);
-        Task<string> DeleteAuthorAsync(Guid id);   
+        Task<string> DeleteAuthorAsync(Guid id);
         Task <List<Author>> GetAllAuthorAsync();
         Task<Author> GetAuthorByIdAsync(Guid id);
     }

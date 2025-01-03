@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using ClassLibrary;
 using Domain.CommandOperationResult;
 
 
@@ -10,7 +9,7 @@ namespace Application.Commands.Books.DeleteBook
         public Guid BookId { get; set; }
         public DeleteBookCommand(Guid bookId)
         {
-            BookId = Guid.NewGuid();
+            BookId = bookId;
         }
     }
 }

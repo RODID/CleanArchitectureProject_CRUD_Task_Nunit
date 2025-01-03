@@ -18,7 +18,6 @@ namespace Domain.CommandOperationResult
             IsSuccess = isSuccess;
             Data = data;
             Message = message;
-
             ErrorMessage = errorMessage ?? string.Empty;
         }
 

@@ -17,18 +17,18 @@ namespace Application.Commands.Authors.AddAuthor
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(request.Name))
+                if (string.IsNullOrWhiteSpace(request.AuthorName))
                 {
-                    return OperationResult<bool>.Failure("Author Name Is Innvalid");
+                    return OperationResult<bool>.Failure("Author AuthorName Is Innvalid");
                 }
 
                 var existingAuthors = await _authorRepository.GetAllAuthorAsync();
-                if (existingAuthors.Any(a => a.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase)))
+                if (existingAuthors.Any(a => a.Name.Equals(request.AuthorName, StringComparison.OrdinalIgnoreCase)))
                 {
                     return OperationResult<bool>.Failure("Duplicate author detected.");
                 }
 
-                var newAuthor = new Author(Guid.NewGuid(), request.Name);
+                var newAuthor = new Author(Guid.NewGuid(), request.AuthorName);
                 await _authorRepository.AddAuthorAsync(newAuthor);
 
                 return OperationResult<bool>.Success(true);

@@ -1,5 +1,4 @@
-﻿using Application.Commands.Authors;
-using Application.Commands.Authors.AddAuthor;
+﻿using Application.Commands.Authors.AddAuthor;
 using Application.Commands.Authors.DeleteAuthor;
 using Application.Commands.Authors.UpdateAuthor;
 using Application.Queries.Auhtors;
@@ -7,6 +6,7 @@ using Domain;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace WebAPI.Controllers
 {
@@ -37,22 +37,34 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async void PostAuthor([FromBody] string authorToAdd)
+        public async Task<ActionResult> PostAuthor([FromBody] string authorToAdd)
         {
-            await _mediator.Send(new AddAuthorCommand(authorToAdd));
+            try
+            {
+                await _mediator.Send(new AddAuthorCommand(authorToAdd));
+                return Ok("Author added successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Author>> PutAuthor(Guid id, [FromBody] UpdateAuthorCommand updateAuthorCommand)
+        public async Task<ActionResult<Author>> UpdateAuthor(Guid id, [FromBody] UpdateAuthorCommand updateAuthorCommand)
         {
-            if (id!= updateAuthorCommand.AuthorId)
-            {
-                return BadRequest("The Author ID in the URL and the body dosent match.");
-            }
             try
             {
-                var updateAuthor = await _mediator.Send(updateAuthorCommand);
+                if (id != updateAuthorCommand.AuthorId)
+                {
+                    return BadRequest("The Author ID in the URL and the body doesn't match.");
+                }
 
+                // Log received data
+                Console.WriteLine($"Received ID: {id}");
+                Console.WriteLine($"Received Body: {JsonConvert.SerializeObject(updateAuthorCommand)}");
+
+                var updateAuthor = await _mediator.Send(updateAuthorCommand);
                 return Ok(updateAuthor);
             }
             catch (Exception ex)
@@ -62,10 +74,24 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteAuthor(Guid id)
+        [Authorize]
+        public async Task<ActionResult> DeleteAuthorAsync(Guid id)
         {
-                await _mediator.Send(new DeleteAuthorCommand(id));
-                return NoContent();
+            try
+            {
+                var result = await _mediator.Send(new DeleteAuthorCommand(id));
+
+                if (result.IsSuccess)
+                {
+                    return NoContent(); 
+                }
+
+                return NotFound(result.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

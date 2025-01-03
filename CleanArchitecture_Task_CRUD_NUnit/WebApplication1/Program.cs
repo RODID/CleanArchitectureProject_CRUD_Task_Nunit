@@ -1,16 +1,13 @@
 using Application.Interface.RepositoryInterface;
 using Application.Queries.Auhtors;
 using Application.Queries.Login.Helpers;
-using ClassLibrary;
 using Infrastructure;
 using Infrastructure.Database;
 using Infrastructure.Repositories.BookRepositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 using System.Text;
 
 namespace WebAPI
@@ -54,7 +51,7 @@ namespace WebAPI
 
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Arjan Arjan", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Clean Architecture", Version = "v1" });
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -116,6 +113,7 @@ namespace WebAPI
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

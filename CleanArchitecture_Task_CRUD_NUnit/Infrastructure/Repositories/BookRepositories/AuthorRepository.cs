@@ -1,5 +1,6 @@
 ﻿using Application.Interface.RepositoryInterface;
 using Domain;
+using Domain.CommandOperationResult;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,9 +23,19 @@ namespace Infrastructure.Repositories.BookRepositories
             return Task.FromResult(author);
         }
 
-        public Task<string> DeleteAuthorAsync(Guid id)
+        public async Task<string> DeleteAuthorAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var authorToDelete = await _realdatabase.Authors.FindAsync(id);
+
+            if (authorToDelete == null)
+            {
+                return "Author not found";
+            }
+
+            _realdatabase.Authors.Remove(authorToDelete);
+            await _realdatabase.SaveChangesAsync();
+
+            return "Author successfully deleted";
         }
 
         public async Task<List<Author>> GetAllAuthorAsync()
@@ -34,12 +45,23 @@ namespace Infrastructure.Repositories.BookRepositories
 
         public async Task<Author> GetAuthorByIdAsync(Guid id)
         {
-            return await _realdatabase.Authors.FindAsync();
+            return await _realdatabase.Authors.FindAsync(id);
         }
 
-        public Task<Author> UpdateAuthorAsync(Guid id, Author author)
+        public async Task<Author> UpdateAuthorAsync(Guid id, Author author)
         {
-            throw new NotImplementedException();
+            var existingAuthor = await _realdatabase.Authors.FindAsync(id);
+
+            if(existingAuthor == null)
+            {
+                throw new KeyNotFoundException($"Author with ID {id} not found!");
+            }
+
+            existingAuthor.Name = author.Name;
+            _realdatabase.Authors.Update(existingAuthor);
+            await _realdatabase.SaveChangesAsync();
+
+            return existingAuthor;
         }
     }
 }

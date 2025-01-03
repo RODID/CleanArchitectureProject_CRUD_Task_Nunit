@@ -14,28 +14,23 @@ namespace Infrastructure.Repositories.BookRepositories
             _realDatabase = realDatabase; 
         }
 
-        public Task<User> AddUserAsync(User user)
+        public async Task<User> AddUserAsync(User user)
         {
-            throw new NotImplementedException();
+            _realDatabase.Users.Add(user);
+            await _realDatabase.SaveChangesAsync();
+            return user;
         }
 
-        public Task<List<User>> GetAllUsersAsync()
+        public async Task<List<User>> GetAllUsersAsync()
         {
-            throw new NotImplementedException();
+            return await _realDatabase.Users.ToListAsync();
         }
 
         public async Task<User> GetUserByCredentialsAsync(string userName, string password)
         {
-            var hashedPassword = HashPassword(password); // If you're hashing passwords
             return await _realDatabase.Users
-                .FirstOrDefaultAsync(user => user.UserName == userName && user.Password == hashedPassword);
+                .FirstOrDefaultAsync(user => user.UserName == userName && user.Password == password);
         }
 
-        // Example of a hashing function if you are storing hashed passwords
-        private string HashPassword(string password)
-        {
-            // Implement your hashing logic here, e.g., using SHA256 or BCrypt
-            return password; // Replace with actual hash logic
-        }
     }
 }
