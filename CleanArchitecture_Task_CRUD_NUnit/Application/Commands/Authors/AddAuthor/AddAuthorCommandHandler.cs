@@ -24,6 +24,7 @@ namespace Application.Commands.Authors.AddAuthor
 
         public async Task<OperationResult<GetAuthorDto>> Handle(AddAuthorCommand request, CancellationToken cancellationToken)
         {
+
             try
             {
                 _logger.LogInformation("Processing AddAuthorCommand for {NewAuthor}", request.NewAuthor);
