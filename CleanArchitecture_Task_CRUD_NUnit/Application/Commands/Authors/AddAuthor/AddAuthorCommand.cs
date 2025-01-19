@@ -1,16 +1,16 @@
 ﻿using MediatR;
-using Domain;
 using Domain.CommandOperationResult;
+using Application.Dtos;
 
 namespace Application.Commands.Authors.AddAuthor
 {
-    public class AddAuthorCommand : IRequest<OperationResult<bool>>
+    public class AddAuthorCommand : IRequest<OperationResult<GetAuthorDto>>
     {
-        public string Name { get; }
+        public AddAuthorDto NewAuthor { get; set; } 
 
-        public AddAuthorCommand(string authorToAdd)
+        public AddAuthorCommand(AddAuthorDto newAuthor)
         {
-            Name = authorToAdd;
+            NewAuthor = newAuthor;
         }
     }
 }

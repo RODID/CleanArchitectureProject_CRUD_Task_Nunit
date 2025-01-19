@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Domain.CommandOperationResult
 {
     public class OperationResult<T>
@@ -18,7 +13,6 @@ namespace Domain.CommandOperationResult
             IsSuccess = isSuccess;
             Data = data;
             Message = message;
-
             ErrorMessage = errorMessage ?? string.Empty;
         }
 
@@ -30,6 +24,11 @@ namespace Domain.CommandOperationResult
         public static OperationResult<T> Failure(string errorMessage, string message = "Operation Failed")
         {
             return new OperationResult<T>(false, default, message, errorMessage);
+        }
+
+        public static OperationResult<T> Failure(string errorMessage)
+        {
+            return Failure(errorMessage, "Operation Failed");
         }
 
     }

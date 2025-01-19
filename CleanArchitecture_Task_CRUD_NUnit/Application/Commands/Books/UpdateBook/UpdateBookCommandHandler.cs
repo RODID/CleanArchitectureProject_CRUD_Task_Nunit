@@ -1,5 +1,5 @@
 ﻿using Application.Interface.RepositoryInterface;
-using ClassLibrary;
+using Domain;
 using Domain.CommandOperationResult;
 using MediatR;
 
@@ -7,18 +7,18 @@ namespace Application.Commands.Books.UpdateBook
 {
     public class UpdateBookCommandHandler : IRequestHandler<UpdateBookCommand, OperationResult<Book>>
     {
-        private readonly IBookRepository _bookRepository;
+        private readonly IGenericRepository<Book, Guid> _repository;
 
-        public UpdateBookCommandHandler(IBookRepository bookRepository)
+        public UpdateBookCommandHandler(IGenericRepository<Book, Guid> repository)
         {
-            _bookRepository = bookRepository;
+            _repository = repository;
         }
 
         public async Task<OperationResult<Book>> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var bookToUpdate = await _bookRepository.GetBookByIdAsync(request.BookId);
+                var bookToUpdate = await _repository.GetByIdAsync(request.BookId);
                 if (bookToUpdate == null)
                 {
                     return OperationResult<Book>.Failure(
@@ -27,7 +27,7 @@ namespace Application.Commands.Books.UpdateBook
                     );
                 }
 
-                await _bookRepository.UpdateBookAsync(bookToUpdate.Id, bookToUpdate);
+                await _repository.UpdateAsync(bookToUpdate);
 
                 return OperationResult<Book>.Success(
                     bookToUpdate,

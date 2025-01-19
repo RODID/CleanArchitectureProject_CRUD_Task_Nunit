@@ -9,16 +9,19 @@ namespace Application.Queries.Login.Helpers
 {
     public class TokenHelper
     {
-        private readonly IConfiguration _configuration;
+        private readonly string _secretKey;
 
-        public TokenHelper(IConfiguration configuration) 
+        public TokenHelper(IConfiguration configuration)
         {
-            _configuration = configuration;
+            _secretKey = configuration["JwtSettings:SecretKey"]
+                         ?? throw new ArgumentNullException("JwtSettings:SecretKey");
         }
 
-        public string GenerateJwtToken (User user)
+        public string GenerateJwtToken(User user)
         {
-            var key = Encoding.ASCII.GetBytes(s: _configuration["JwtSettings:SecurityKey"]!);
+            if (user == null) throw new ArgumentNullException(nameof(user));
+
+            var key = Encoding.ASCII.GetBytes(_secretKey);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -26,9 +29,9 @@ namespace Application.Queries.Login.Helpers
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, "Admin")
+                    new Claim(ClaimTypes.Role, "Admin") 
                 }),
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.UtcNow.AddHours(1), 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 

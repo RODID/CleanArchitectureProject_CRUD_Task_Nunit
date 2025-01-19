@@ -1,33 +1,40 @@
-﻿using Application.Interface.RepositoryInterface;
-using ClassLibrary;
+﻿using Application.Dtos;
+using Application.Interface.RepositoryInterface;
+using AutoMapper;
+using Domain;
 using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Queries.Books
 {
-    public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQuery, OperationResult<List<Book>>>
+    public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQuery, OperationResult<GetAllBooksDto>>
     {
-        private readonly IBookRepository _bookRepository;
 
-        public GetBookByIdQueryHandler(IBookRepository bookRepository)
+        private readonly IGenericRepository<Book, int> _repository;
+        private readonly IMapper _mapper;
+
+        public GetBookByIdQueryHandler(IGenericRepository<Book, int> repository, IMapper mapper)
         {
-            _bookRepository = bookRepository;
+            _repository = repository;
+            _mapper = mapper;
         }
 
-        public async Task<OperationResult<List<Book>>> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<GetAllBooksDto>> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
         {
             try
             {
-                var books = await _bookRepository.GetBookByIdAsync(request.BookId);
-                if (books == null)
+                var book = await _repository.GetByIdAsync(request.BookId);
+                if (book == null)
                 {
-                    return OperationResult<List<Book>>.Failure("No books found with the specified ID.");
+                    return OperationResult<GetAllBooksDto>.Failure("Book does not exist.");
                 }
-                return OperationResult<List<Book>>.Success(new List<Book> { books});
+                var mappedBook = _mapper.Map<GetAllBooksDto>(book);
+                return OperationResult<GetAllBooksDto>.Success(mappedBook);
             }
             catch (Exception ex)
             {
-                return OperationResult<List<Book>>.Failure("An error occured!");
+                return OperationResult<GetAllBooksDto>.Failure(ex.Message);
+
             }
         }
     }

@@ -7,27 +7,23 @@ namespace Application.Commands.Authors.DeleteAuthor
 {
     public class DeleteAuthorCommandHandler : IRequestHandler<DeleteAuthorCommand, OperationResult<bool>>
     {
-        private readonly IAuthorRepository _authorRepository;
-        public DeleteAuthorCommandHandler(IAuthorRepository authorRepository) 
+        private readonly IGenericRepository<Author, Guid> _repository;
+        public DeleteAuthorCommandHandler(IGenericRepository<Author, Guid> repository) 
         {
-            _authorRepository = authorRepository;
+            _repository = repository;
         }
 
         public async Task<OperationResult<bool>> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var authorToRemove = await _authorRepository.GetAuthorByIdAsync(request.AuthorId);
-                if (authorToRemove == null)
+                var authorToRemove = await _repository.DeleteAsync(request.AuthorId);
+                if (!authorToRemove)
                 {
                     return OperationResult<bool>.Failure("Author not found", "Failed to delete author");
                 }
+                return OperationResult<bool>.Success(true);
 
-                await _authorRepository.DeleteAuthorAsync(authorToRemove.Id);
-
-                var allAuthors = await _authorRepository.GetAllAuthorAsync();
-
-                return OperationResult<bool>.Success(true, "Author successfully deleted!");
             }
             catch (Exception ex)
             {

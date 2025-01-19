@@ -1,32 +1,45 @@
-﻿using Application.Interface.RepositoryInterface;
+﻿using Application.Dtos;
+using Application.Interface.RepositoryInterface;
+using AutoMapper;
 using Domain;
 using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Queries.Auhtors
 {
-    public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, OperationResult<List<Author>>>
+    public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, OperationResult<List<GetAuthorDto>>>
     {
-        private readonly IAuthorRepository _authorRepository;
-        public GetAllAuthorsQueryHandler(IAuthorRepository authorRepository) 
+        private readonly IGenericRepository<Author, int> _repository;
+        private readonly IMapper _mapper;
+        public GetAllAuthorsQueryHandler(IGenericRepository<Author, int> repository, IMapper mapper)
         {
-            _authorRepository = authorRepository;
+            _repository = repository;
+            _mapper = mapper;
         }
 
-        public async Task<OperationResult<List<Author>>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<List<GetAuthorDto>>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                return OperationResult<List<GetAuthorDto>>.Failure("Request cannot be null.");
+            }
+
             try
             {
-                var authors = await _authorRepository.GetAllAuthorAsync();
-                if (authors == null || authors.Count == 0)
+                var allAuthorsFromDatabase = await _repository.GetAllAsync();
+
+                if (allAuthorsFromDatabase == null || !allAuthorsFromDatabase.Any())
                 {
-                    return OperationResult<List<Author>>.Failure("No author found!");
+                    return OperationResult<List<GetAuthorDto>>.Failure("No authors found in the database.");
                 }
-                return OperationResult<List<Author>>.Success(authors);
+
+                var mappedAuthorsFromDatabase = _mapper.Map<List<GetAuthorDto>>(allAuthorsFromDatabase);
+
+                return OperationResult<List<GetAuthorDto>>.Success(mappedAuthorsFromDatabase);
             }
             catch (Exception ex)
             {
-                return OperationResult<List<Author>>.Failure("An error occured, try again!");
+                return OperationResult<List<GetAuthorDto>>.Failure("An error occurred while retrieving authors: " + ex.Message);
             }
         }
     }
