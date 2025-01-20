@@ -9,9 +9,9 @@ namespace Application.Commands.Users
     {
         public AddNewUserCommand(UserDTO newName)
         {
-            UserName = user.UserName;
-            Password = user.Password;
-            Email = user.Email;
+            UserName = newName.UserName;
+            Password = newName.Password;
+            Email = newName.Email;
         }
 
         public UserDTO NewUser { get; }

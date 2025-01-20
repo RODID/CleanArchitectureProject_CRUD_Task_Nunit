@@ -11,7 +11,7 @@ namespace Application.Mappings
             ApplyMappingsFromAssembly();
             CreateMap<AddAuthorDto, Author>();
             CreateMap<Author, GetAuthorDto>();
-            CreateMap<AddBookDto, Book>();
+            CreateMap<AddBookDTO, Book>();
             CreateMap<Book, GetAllBooksDto>();
         }
 

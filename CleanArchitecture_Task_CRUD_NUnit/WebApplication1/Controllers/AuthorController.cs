@@ -69,7 +69,7 @@ namespace WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Author>> PutAuthor(int id, [FromBody] UpdateAuthorCommand updateAuthorCommand)
         {
-            if (id != updateAuthorCommand.AuthorId)
+            try
             {
                 if (id != updateAuthorCommand.AuthorId)
                 {
@@ -83,6 +83,7 @@ namespace WebAPI.Controllers
                 var updateAuthor = await _mediator.Send(updateAuthorCommand);
                 return Ok(updateAuthor);
             }
+
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);

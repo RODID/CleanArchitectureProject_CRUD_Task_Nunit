@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostBook([FromBody, Required] AddBookDto bookToAdd)
+        public async Task<IActionResult> PostBook([FromBody, Required] AddBookDTO bookToAdd)
         {
             _logger.LogInformation("Adding new book with title: {Title}", bookToAdd.Title);
 
