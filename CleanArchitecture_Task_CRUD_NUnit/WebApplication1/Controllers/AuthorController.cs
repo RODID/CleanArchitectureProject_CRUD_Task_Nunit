@@ -6,6 +6,7 @@ using Domain;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace WebAPI.Controllers
 {
@@ -70,10 +71,15 @@ namespace WebAPI.Controllers
         {
             if (id != updateAuthorCommand.AuthorId)
             {
-                return BadRequest("The Author ID in the URL and the body dosent match.");
-            }
-            try
-            {
+                if (id != updateAuthorCommand.AuthorId)
+                {
+                    return BadRequest("The Author ID in the URL and the body doesn't match.");
+                }
+
+                // Log received data
+                Console.WriteLine($"Received ID: {id}");
+                Console.WriteLine($"Received Body: {JsonConvert.SerializeObject(updateAuthorCommand)}");
+
                 var updateAuthor = await _mediator.Send(updateAuthorCommand);
                 return Ok(updateAuthor);
             }

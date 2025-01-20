@@ -33,8 +33,8 @@
 //            var result = await handler.Handle(command, CancellationToken.None);
 
 //            Assert.IsNotNull(result);
-//            Assert.AreEqual("New Book Name", result.Title);
-//            Assert.AreEqual("New Book Name", result.Description);
+//            Assert.AreEqual("New Book AuthorName", result.Title);
+//            Assert.AreEqual("New Book AuthorName", result.Description);
 //            Assert.AreEqual(1, _fakeDatabase.AllBooksFromDB.Count);
 //            Assert.AreEqual(result, _fakeDatabase.AllBooksFromDB[0]);
 //        }
@@ -44,16 +44,16 @@
 //        public async Task UpdateBookCommandHandler_ShouldUpdateOnlyBookName_WheneDescriptionIsUnchanged()
 //        {
 //            var bookId = Guid.NewGuid();
-//            var existingBook = new Book(bookId, "Old Book Name", "OriginalDescription");
+//            var existingBook = new Book(bookId, "Old Book AuthorName", "OriginalDescription");
 //            _fakeDatabase.AllBooksFromDB.Add(existingBook);
 
-//            var command = new UpdateBookCommand(bookId, "Updated Book Name", existingBook.Description);
+//            var command = new UpdateBookCommand(bookId, "Updated Book AuthorName", existingBook.Description);
 //            var handler = new UpdateBookCommandHandler(_fakeDatabase);
 
 //            var result = await handler.Handle(command, CancellationToken.None);
 
 //            Assert.IsNotNull(result);
-//            Assert.AreEqual("Updated Book Name", result.Title);
+//            Assert.AreEqual("Updated Book AuthorName", result.Title);
 //            Assert.AreEqual("Original Description", result.Description);
 //        }
 //    }

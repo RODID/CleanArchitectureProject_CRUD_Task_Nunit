@@ -12,7 +12,7 @@ namespace Application.Commands.Books.UpdateBook
 
         public UpdateBookCommand(Guid bookId, string newTitle, string newDescription)
         {
-            BookId = Guid.NewGuid();
+            BookId = bookId;
             NewTitle = newTitle;
             NewDescription = newDescription;
         }

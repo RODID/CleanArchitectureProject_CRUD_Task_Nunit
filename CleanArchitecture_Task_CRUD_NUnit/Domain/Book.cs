@@ -31,4 +31,5 @@ public class Book
     [StringLength(2000, ErrorMessage = "Description cannot exceed 2000 characters.")]
     public string Description { get; set; }
 
+    }
 }
