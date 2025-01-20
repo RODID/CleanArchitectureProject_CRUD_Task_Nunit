@@ -11,10 +11,12 @@ namespace Application.Commands.Users
         {
             UserName = newName.UserName;
             Password = newName.Password;
+            Email = newName.Email;
         }
 
         public UserDTO NewUser { get; }
         public string UserName { get; set; }
         public string Password {  get; set; }
+        public string Email { get; set; }
     }
 }

@@ -1,57 +1,59 @@
-﻿using Application.Commands.Books.AddBook;
+﻿using Application.Commands.Authors.DeleteAuthor;
+using Application.Commands.Books.AddBook;
 using Application.Commands.Books.DeleteBook;
 using Application.Commands.Books.UpdateBook;
 using Application.Dtos;
 using Application.Queries.Books;
-using ClassLibrary;
+using Domain;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookController : ControllerBase
+    public class BookController(IMediator mediator, ILogger<BookController> logger) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        public BookController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        private readonly IMediator _mediator = mediator;
+        private readonly ILogger<BookController> _logger = logger;
+
+       
 
         [HttpGet]
         public async Task<ActionResult<List<Book>>> GetAllBooks()
         {
-            try
+            var result = await _mediator.Send(new GetAllBooksQuery());
+            if (!result.IsSuccess)
             {
-                var books = await _mediator.Send(new GetAllBooksQuery());
-                return Ok (books);
+                return StatusCode(500, result.Message);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+
+            return Ok(result.Data);
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostBook([FromBody] AddBookDTO bookToAdd)
+        public async Task<IActionResult> PostBook([FromBody, Required] AddBookDTO bookToAdd)
         {
+            _logger.LogInformation("Adding new book with title: {Title}", bookToAdd.Title);
+
             try
             {
-                var command = new AddBookCommand(bookToAdd.Title, bookToAdd.Description);
-                var result = await _mediator.Send(command);
+                var operationResult = await _mediator.Send(new AddBookCommand(bookToAdd.Title, bookToAdd.YearPublished, bookToAdd.Description));
 
-                if (!result.IsSuccess)
+                if (!operationResult.IsSuccess)
                 {
-                    return BadRequest(result.ErrorMessage);
+                    return StatusCode(500, operationResult.Message);
                 }
 
-                return CreatedAtAction(nameof(GetAllBooks), new { id = result.Data.Id }, result.Data);
+                _logger.LogInformation("Book {Title} added successfully", operationResult.Data.Title);
+                return Ok(operationResult.Data);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                _logger.LogError(ex, "An error occurred while adding the book.");
+                return StatusCode(500, "An error occurred while processing your request.");
             }
         }
 
@@ -83,8 +85,13 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteBook(Guid id)
         {
-            await _mediator.Send(new DeleteBookCommand(id));
-            return NoContent();
+            var command = new DeleteBookCommand(id);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                return NoContent();
+            }
+            return BadRequest(result.ErrorMessage);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Application.Interface.RepositoryInterface;
-using ClassLibrary;
+using Domain;
 using Domain;
 using Domain.CommandOperationResult;
 using MediatR;
@@ -8,9 +8,8 @@ namespace Application.Queries.Users
 {
     public class GetAllUsersQueryHandler : IRequestHandler<GetAllUserQuery, OperationResult<List<User>>>
     {
-        private readonly IUserRepository _userRepository;
-
-        public GetAllUsersQueryHandler(IUserRepository userRepository)
+        private readonly IGenericRepository<User, Guid> _userRepository;
+        public GetAllUsersQueryHandler(IGenericRepository<User, Guid> userRepository)
         {
             _userRepository = userRepository;
         }
@@ -18,16 +17,16 @@ namespace Application.Queries.Users
         {
             try
             {
-                var users = await _userRepository.GetAllUsersAsync();
-                if (users == null || users.Count == 0)
+                var users = await _userRepository.GetAllAsync();
+                if (users == null || !users.Any())
                 {
                     return OperationResult<List<User>>.Failure("No users found!");
                 }
-                return OperationResult<List<User>>.Success(users);
+                return OperationResult<List<User>>.Success(users.ToList());
             }
             catch (Exception ex)
             {
-                return OperationResult<List<User>>.Failure("An error occured, try again!");
+                return OperationResult<List<User>>.Failure($"An error occurred: {ex.Message}");
             }
         }
     }

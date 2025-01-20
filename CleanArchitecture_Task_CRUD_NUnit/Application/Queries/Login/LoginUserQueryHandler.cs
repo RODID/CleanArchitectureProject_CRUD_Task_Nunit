@@ -1,31 +1,38 @@
 ﻿using Application.Interface.RepositoryInterface;
 using Application.Queries.Login.Helpers;
 using MediatR;
+using Domain;
+using Domain.CommandOperationResult;
 
 namespace Application.Queries.Login
 {
-    public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, string>
+    public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, OperationResult<string>>
     {
-        private readonly IUserRepository  _userRepository;
+        private readonly IGenericRepository<User, Guid> _userRepository;
         private readonly TokenHelper _tokenHelper;
-        public LoginUserQueryHandler(IUserRepository userRepository, TokenHelper tokenHelper)
+
+        public LoginUserQueryHandler(IGenericRepository<User, Guid> userRepository, TokenHelper tokenHelper)
         {
             _userRepository = userRepository;
             _tokenHelper = tokenHelper;
         }
 
-        public async Task<string> Handle(LoginUserQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<string>> Handle(LoginUserQuery request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetUserByCredentialsAsync(request.LoginUser.UserName, request.LoginUser.Password);
+            var users = await _userRepository.GetAllAsync();
+
+            var user = users.FirstOrDefault(user =>
+                user.UserName == request.LoginUser.UserName &&
+                user.Password == request.LoginUser.Password);
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("Invalid username or passwor");
+                return OperationResult<string>.Failure("Invalid username or passwrod");
             }
 
             string token = _tokenHelper.GenerateJwtToken(user);
 
-            return token;
+            return OperationResult<string>.Success(token, "Login successful");
         }
     }
 }   

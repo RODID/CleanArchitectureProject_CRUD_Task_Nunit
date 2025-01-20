@@ -1,14 +1,15 @@
-﻿using ClassLibrary;
+﻿using Application.Dtos;
+using Domain;
 using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Queries.Books
 {
-    public class GetBookByIdQuery : IRequest<OperationResult<List<Book>>>
+    public class GetBookByIdQuery : IRequest<OperationResult<GetAllBooksDto>>
     {
-        public Guid BookId { get; set; }
+        public int BookId { get; set; }
 
-        public GetBookByIdQuery(Guid bookId)
+        public GetBookByIdQuery(int bookId)
         {
             BookId = bookId;
         }

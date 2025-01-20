@@ -1,10 +1,13 @@
+using Application;
+using Application.Behavior;
 using Application.Interface.RepositoryInterface;
-using Application.Queries.Auhtors;
 using Application.Queries.Login.Helpers;
 using Infrastructure;
 using Infrastructure.Database;
-using Infrastructure.Repositories.BookRepositories;
+using Infrastructure.Repositories;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -77,29 +80,23 @@ namespace WebAPI
             });
 
 
-            builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
-            builder.Services.AddControllers();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+            builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("DefaultConnection")!);
-            
-            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
-                typeof(Program).Assembly,
-                typeof(GetAllAuthorsQuery).Assembly
-            ));
-
+            builder.Services.AddApplication();
             builder.Services.AddDbContext<RealDatabase>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-            });
+                        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<TokenHelper>();
+            builder.Services.AddAutoMapper(typeof(AppDomain)); 
 
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IBookRepository, BookRepository>();
-            builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+
+            builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
 
             var app = builder.Build();
 

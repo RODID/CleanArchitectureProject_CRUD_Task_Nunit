@@ -1,31 +1,46 @@
-﻿using Application.Interface.RepositoryInterface;
-using ClassLibrary;
+﻿using Application.Dtos;
+using Application.Interface.RepositoryInterface;
+using AutoMapper;
+using Domain;
 using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Queries.Books
 {
-    public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQuery, OperationResult<List<Book>>>
+    public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQuery, OperationResult<List<GetAllBooksDto>>>
     {
-        private readonly IBookRepository _bookRepository;
-        public GetAllBooksQueryHandler(IBookRepository bookRepository)
+        private readonly IGenericRepository<Book, int> _repository;
+        private readonly IMapper _mapper;
+
+        public GetAllBooksQueryHandler(IGenericRepository<Book, int> repository, IMapper mapper)
         {
-            _bookRepository = bookRepository;
+            _repository = repository;
+            _mapper = mapper;
         }
-        public async Task<OperationResult<List<Book>>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
+
+        public async Task<OperationResult<List<GetAllBooksDto>>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                return OperationResult<List<GetAllBooksDto>>.Failure("Request cannot be null.");
+            }
+
             try
             {
-                var books = await _bookRepository.GetAllBookAsync();
-                if (books == null || books.Count == 0)
+                var allbooksFromDatabase = await _repository.GetAllAsync();
+
+                if (allbooksFromDatabase == null || !allbooksFromDatabase.Any())
                 {
-                    return OperationResult<List<Book>>.Failure("No books found!");
+                    return OperationResult<List<GetAllBooksDto>>.Failure("No authors found in the database.");
                 }
-                return OperationResult<List<Book>>.Success(books);
+
+                var mappedBooksFromDatabase = _mapper.Map<List<GetAllBooksDto>>(allbooksFromDatabase);
+
+                return OperationResult<List<GetAllBooksDto>>.Success(mappedBooksFromDatabase);
             }
             catch (Exception ex)
             {
-                return OperationResult<List<Book>>.Failure("An error occured, try again!");
+                return OperationResult<List<GetAllBooksDto>>.Failure("An error occurred while retrieving authors: " + ex.Message);
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿using Application.Interface.RepositoryInterface;
+﻿using Application.Dtos;
+using Application.Interface.RepositoryInterface;
+using AutoMapper;
 using Domain;
 using Domain.CommandOperationResult;
 using MediatR;
@@ -7,38 +9,34 @@ namespace Application.Commands.Authors.UpdateAuthor
 {
     public class UpdateAuthorCommandHandler : IRequestHandler<UpdateAuthorCommand, OperationResult<Author>>
     {
-        private readonly IAuthorRepository _authorRepository;
-        public UpdateAuthorCommandHandler(IAuthorRepository authorRepository)
+        private readonly IGenericRepository<Author, int> _repository;
+        private readonly IMapper _mapper;
+
+        public UpdateAuthorCommandHandler(IGenericRepository<Author, int> repository, IMapper mapper)
         {
-            _authorRepository = authorRepository;
+            _repository = repository;
+            _mapper = mapper;
         }
 
         public async Task<OperationResult<Author>> Handle(UpdateAuthorCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var authorToUpdate = await _authorRepository.GetAuthorByIdAsync(request.AuthorId);
-                if (authorToUpdate == null)
+                var author = await _repository.GetByIdAsync(request.AuthorId);
+                if (author == null)
                 {
-                    return OperationResult<Author>.Failure(
-                        $"Author with ID {request.AuthorId} wasn't found.",
-                        "Update operation failed"
-                    );
+                    return OperationResult<Author>.Failure("Author not found.");
                 }
 
-                authorToUpdate.Name = request.NewName;
-                var updatedAuthor = await _authorRepository.UpdateAuthorAsync(authorToUpdate.Id, authorToUpdate);
+                _mapper.Map(request, author); 
+                await _repository.UpdateAsync(author);
 
-                return OperationResult<Author>.Success(
-                    updatedAuthor,
-                    "Author updated successfully"
-                );
+                return OperationResult<Author>.Success(author);
             }
             catch (Exception ex)
             {
-                return OperationResult<Author>.Failure($"An error occurred: {ex.Message} - {ex.StackTrace}");
+                return OperationResult<Author>.Failure($"Error updating author: {ex.Message}");
             }
-        
         }
     }
 }

@@ -1,40 +1,43 @@
 ﻿using MediatR;
-using ClassLibrary;
-using Domain.CommandOperationResult;
+using Domain;
 using Application.Interface.RepositoryInterface;
+using Microsoft.Extensions.Logging;
+using Domain.CommandOperationResult;
+using Application.Dtos;
 
 namespace Application.Commands.Books.AddBook
 {
-    public class AddBookCommandHandler : IRequestHandler<AddBookCommand, OperationResult<Book>>
+    public class AddBookCommandHandler : IRequestHandler<AddBookCommand, OperationResult<GetAllBooksDto>>
     {
-        private readonly IBookRepository _bookRepository;
-        public AddBookCommandHandler(IBookRepository bookRepository)
+        private readonly IGenericRepository<Book, Guid> _genericRepository;
+        private readonly ILogger<AddBookCommandHandler> _logger;
+        public AddBookCommandHandler(IGenericRepository<Book, Guid> genericRepository, ILogger<AddBookCommandHandler> logger)
         {
-            _bookRepository = bookRepository;
+            _genericRepository = genericRepository;
+            _logger = logger;
         }
 
-        public async Task<OperationResult<Book>> Handle(AddBookCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<GetAllBooksDto>> Handle(AddBookCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(request.Title))
-                {
-                    return OperationResult<Book>.Failure("Book title is required.");
-                }
+                _logger.LogInformation("Book Created: {BookTitle}", request.Title);
+                var book = new Book(Guid.NewGuid(), request.Title, request.YearPublished, request.Description);
+                var addedBook = await _genericRepository.AddAsync(book);
 
-                var newBook = new Book
+                var responseDto = new GetAllBooksDto
                 {
-                    Id = Guid.NewGuid(),
-                    Title = request.Title,
-                    Description = request.Description,
+                    Id = addedBook.Id, 
+                    Title = addedBook.Title,
+                    Description = addedBook.Description
                 };
-                var addedBook = await _bookRepository.AddBookAsync(newBook);
 
-                return OperationResult<Book>.Success(addedBook, "Book added Successfully!");
+                return OperationResult<GetAllBooksDto>.Success(responseDto);
             }
             catch (Exception ex)
             {
-                return OperationResult<Book>.Failure($"An error occurred while adding the book: ", ex.Message);
+                _logger.LogError(ex, "Error occurred while adding book");
+                return OperationResult<GetAllBooksDto>.Failure("An error occurred while adding the book.");
             }
         }
     }
