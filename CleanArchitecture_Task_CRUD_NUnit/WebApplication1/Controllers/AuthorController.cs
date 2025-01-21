@@ -1,6 +1,8 @@
 ﻿using Application.Commands.Authors.AddAuthor;
 using Application.Commands.Authors.DeleteAuthor;
 using Application.Commands.Authors.UpdateAuthor;
+using Application.Commands.Books.UpdateBook;
+using Application.Dtos;
 using Application.Queries.Auhtors;
 using Domain;
 using MediatR;
@@ -26,7 +28,7 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Author>>> GetAllAuthors()
         {
-            _logger.LogInformation("Fetching all Answers at {time}", DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"));
+            _logger.LogInformation("Fetching all Authors at {time}", DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"));
             try
             {
                 var operationResult = await _mediator.Send(new GetAllAuthorsQuery());
@@ -42,7 +44,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAuthor([FromBody] AddAuthorCommand addAuthorCommand)
+        public async Task<IActionResult> AddAuthor([FromBody] AddAuthorCommand addAuthorCommand)
         {
             _logger.LogInformation("Attempting to add a new author with name: {AuthorName}", addAuthorCommand.NewAuthor);
 
@@ -67,30 +69,41 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Author>> PutAuthor(int id, [FromBody] UpdateAuthorCommand updateAuthorCommand)
+        [Authorize]
+        public async Task<ActionResult<Author>> UpdateAuthor(Guid id, [FromBody] UpdateAuthorDto dto)
         {
+            _logger.LogInformation("Updating Book with ID: {id}", id);
+
             try
             {
-                if (id != updateAuthorCommand.AuthorId)
+                if (id != dto.Id)
                 {
-                    return BadRequest("The Author ID in the URL and the body doesn't match.");
+                    _logger.LogWarning("ID mismatch: URL ID {id} does not match body ID {bookId}", id, dto.Id);
+                    return BadRequest("The book ID in the URL and the body do not match.");
                 }
 
-                // Log received data
-                Console.WriteLine($"Received ID: {id}");
-                Console.WriteLine($"Received Body: {JsonConvert.SerializeObject(updateAuthorCommand)}");
+                var updateAuthorCommand = new UpdateAuthorCommand(dto);
 
-                var updateAuthor = await _mediator.Send(updateAuthorCommand);
-                return Ok(updateAuthor);
+                var operationResult = await _mediator.Send(updateAuthorCommand);
+
+                if (operationResult.IsSuccess)
+                {
+                    _logger.LogInformation("Successfully updated Author with ID: {id}", id);
+                    return Ok(operationResult.Data);
+                }
+
+                _logger.LogWarning("Failed to update Author with ID {id}: {errorMessage}", id, operationResult.ErrorMessage);
+                return BadRequest(operationResult.ErrorMessage);
             }
-
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                _logger.LogError(ex, "An error occurred while updating Auhtor with ID: {id}", id);
+                return StatusCode(500, "An error occurred while processing your request.");
             }
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteAuthor(Guid id)
         {
             var command = new DeleteAuthorCommand(id);

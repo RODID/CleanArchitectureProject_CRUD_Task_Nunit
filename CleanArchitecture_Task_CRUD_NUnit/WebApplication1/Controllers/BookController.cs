@@ -19,22 +19,26 @@ namespace WebAPI.Controllers
         private readonly IMediator _mediator = mediator;
         private readonly ILogger<BookController> _logger = logger;
 
-       
-
         [HttpGet]
         public async Task<ActionResult<List<Book>>> GetAllBooks()
         {
-            var result = await _mediator.Send(new GetAllBooksQuery());
-            if (!result.IsSuccess)
-            {
-                return StatusCode(500, result.Message);
-            }
 
-            return Ok(result.Data);
+            _logger.LogInformation("Fetching all Books at {time}", DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"));
+            try
+            {
+                var operationResult = await _mediator.Send(new GetAllBooksQuery());
+                _logger.LogInformation("Successfully retrived all Books");
+                return Ok(operationResult.Data);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching Books ath {time}", DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"));
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostBook([FromBody, Required] AddBookDTO bookToAdd)
+        public async Task<IActionResult> AddBook([FromBody, Required] AddBookDTO bookToAdd)
         {
             _logger.LogInformation("Adding new book with title: {Title}", bookToAdd.Title);
 
@@ -58,31 +62,41 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Book>> UpdateBook(Guid id, [FromBody]  UpdateBookCommand updateBookCommand)
+        [Authorize]
+        public async Task<IActionResult> UpdateBook(Guid id, [FromBody]  UpdateBookDto updateBookDto)
         {
-            if (id != updateBookCommand.BookId)
-            {
-                return BadRequest("The book ID in the URL and the body do not match. ");
-            }
+            _logger.LogInformation("Updating Book with ID: {id}", id);
 
             try
             {
-                var updateBook = await _mediator.Send(updateBookCommand);
+                if (id != updateBookDto.Id)
+                {
+                    _logger.LogWarning("ID mismatch: URL ID {id} does not match body ID {bookId}", id, updateBookDto.Id);
+                    return BadRequest("The book ID in the URL and the body do not match.");
+                }
 
-                    return Ok(updateBook);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+                var updateBookCommand = new UpdateBookCommand(updateBookDto);
 
+                var operationResult = await _mediator.Send(updateBookCommand);
+
+                if (operationResult.IsSuccess)
+                {
+                    _logger.LogInformation("Successfully updated Book with ID: {id}", id);
+                    return Ok(operationResult.Data);
+                }
+
+                _logger.LogWarning("Failed to update Book with ID {id}: {errorMessage}", id, operationResult.ErrorMessage);
+                return BadRequest(operationResult.ErrorMessage);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                _logger.LogError(ex, "An error occurred while updating Book with ID: {id}", id);
+                return StatusCode(500, "An error occurred while processing your request.");
             }
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<ActionResult> DeleteBook(Guid id)
         {
             var command = new DeleteBookCommand(id);

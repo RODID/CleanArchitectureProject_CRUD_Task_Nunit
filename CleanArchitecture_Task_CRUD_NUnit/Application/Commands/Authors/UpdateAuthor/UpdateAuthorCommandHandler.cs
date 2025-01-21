@@ -7,35 +7,43 @@ using MediatR;
 
 namespace Application.Commands.Authors.UpdateAuthor
 {
-    public class UpdateAuthorCommandHandler : IRequestHandler<UpdateAuthorCommand, OperationResult<Author>>
+    public class UpdateAuthorCommandHandler : IRequestHandler<UpdateAuthorCommand, OperationResult<UpdateAuthorDto>>
     {
-        private readonly IGenericRepository<Author, int> _repository;
+        private readonly IGenericRepository<Author, Guid> _repository;
         private readonly IMapper _mapper;
 
-        public UpdateAuthorCommandHandler(IGenericRepository<Author, int> repository, IMapper mapper)
+        public UpdateAuthorCommandHandler(IGenericRepository<Author, Guid> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
         }
 
-        public async Task<OperationResult<Author>> Handle(UpdateAuthorCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<UpdateAuthorDto>> Handle(UpdateAuthorCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var author = await _repository.GetByIdAsync(request.AuthorId);
-                if (author == null)
+                var existingAuthor = await _repository.GetByIdAsync(request.Dto.Id);
+                if (existingAuthor == null)
                 {
-                    return OperationResult<Author>.Failure("Author not found.");
+                    return OperationResult<UpdateAuthorDto>.Failure("Auhtor not found.");
                 }
 
-                _mapper.Map(request, author); 
-                await _repository.UpdateAsync(author);
+                existingAuthor.Name = request.Dto.Name;
+                existingAuthor.Bio = request.Dto.Bio;
 
-                return OperationResult<Author>.Success(author);
+                var updatedAuthor = await _repository.UpdateAsync(existingAuthor);
+
+                if (updatedAuthor == null)
+                {
+                    return OperationResult<UpdateAuthorDto>.Failure("Failed to update Author.");
+                }
+
+                var updatedDto = _mapper.Map<UpdateAuthorDto>(updatedAuthor);
+                return OperationResult<UpdateAuthorDto>.Success(updatedDto);
             }
             catch (Exception ex)
             {
-                return OperationResult<Author>.Failure($"Error updating author: {ex.Message}");
+                return OperationResult<UpdateAuthorDto>.Failure($"An error occurred: {ex.Message}");
             }
         }
     }
