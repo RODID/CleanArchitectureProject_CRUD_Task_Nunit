@@ -1,42 +1,49 @@
-﻿using Application.Interface.RepositoryInterface;
+﻿using Application.Dtos;
+using Application.Interface.RepositoryInterface;
+using AutoMapper;
 using Domain;
 using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Commands.Books.UpdateBook
 {
-    public class UpdateBookCommandHandler : IRequestHandler<UpdateBookCommand, OperationResult<Book>>
+    public class UpdateBookCommandHandler : IRequestHandler<UpdateBookCommand, OperationResult<UpdateBookDto>>
     {
         private readonly IGenericRepository<Book, Guid> _repository;
+        private readonly IMapper _mapper;
 
-        public UpdateBookCommandHandler(IGenericRepository<Book, Guid> repository)
+        public UpdateBookCommandHandler(IGenericRepository<Book, Guid> repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
-        public async Task<OperationResult<Book>> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<UpdateBookDto>> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var bookToUpdate = await _repository.GetByIdAsync(request.BookId);
-                if (bookToUpdate == null)
+                var existingBook = await _repository.GetByIdAsync(request.Dto.Id);
+                if (existingBook == null)
                 {
-                    return OperationResult<Book>.Failure(
-                        $"Book with ID {request.BookId} wasn't found.",
-                        "Update operation failed"
-                    );
+                    return OperationResult<UpdateBookDto>.Failure("Book not found.");
                 }
 
-                await _repository.UpdateAsync(bookToUpdate);
+                existingBook.Title = request.Dto.Title;
+                existingBook.Description = request.Dto.Description;
 
-                return OperationResult<Book>.Success(
-                    bookToUpdate,
-                    "Book updated successfully"
-                );
+                var updatedBook = await _repository.UpdateAsync(existingBook);
+
+                if (updatedBook == null)
+                {
+                    return OperationResult<UpdateBookDto>.Failure("Failed to update book.");
+                }
+
+                var updatedDto = _mapper.Map<UpdateBookDto>(updatedBook);
+                return OperationResult<UpdateBookDto>.Success(updatedDto);
             }
             catch (Exception ex)
             {
-                return OperationResult<Book>.Failure($"An error occurred: {ex.Message}");
+                return OperationResult<UpdateBookDto>.Failure($"An error occurred: {ex.Message}");
             }
         }
     }

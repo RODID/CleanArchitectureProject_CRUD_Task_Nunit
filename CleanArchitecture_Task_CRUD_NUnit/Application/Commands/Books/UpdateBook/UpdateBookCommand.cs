@@ -1,21 +1,16 @@
-﻿using Domain;
+﻿using Application.Dtos;
 using Domain.CommandOperationResult;
 using MediatR;
 
 namespace Application.Commands.Books.UpdateBook
 {
-    public class UpdateBookCommand : IRequest<OperationResult<Book>>
+    public class UpdateBookCommand : IRequest<OperationResult<UpdateBookDto>>
     {
-        public Guid BookId { get; }
-        public string NewTitle { get; }
-        public string NewDescription { get; }
+        public UpdateBookDto Dto { get; set; }
 
-        public UpdateBookCommand(Guid bookId, string newTitle, string newDescription)
+        public UpdateBookCommand(UpdateBookDto dto)
         {
-            BookId = bookId;
-            NewTitle = newTitle;
-            NewDescription = newDescription;
+            Dto = dto;
         }
-
     }
 }

@@ -75,9 +75,9 @@ namespace Infrastructure.Repositories
 
         public async Task<T> GetByIdAsync(TKey id)
         {
-            if (id is Guid)
+            if (id is Guid guidId)
             {
-                return await _dbSet.FindAsync(id.ToString());
+                return await _dbSet.FindAsync(guidId);
             }
             else if (id is int)
             {
